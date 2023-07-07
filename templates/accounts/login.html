@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="contaniner mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 text-center">
+
+            <form action="{% url 'login' %}" method="POST">
+                    {% csrf_token %}
+                {{form.username|as_crispy_field}}
+                {{form.password|as_crispy_field}}
+                <button  class="btn btn-success">Login</button>
+            </form>
+            {% for message in messages %}
+
+            {{message}}
+              
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container text-center mt-5 " >
+    <div class="row justify-content-center ">
+        <div class="col-md-7">
+    <form action="{% url 'register' %}" method="POST">
+        {% csrf_token %}
+        <div class="row">
+<div class="col-md-6">
+
+    {{form.first_name|as_crispy_field}}
+</div>
+<div class="col-md-6">
+
+    {{form.last_name|as_crispy_field}}
+</div>
+        </div>
+                {{form.email|as_crispy_field}}
+                
+                <div class="text-danger">
+
+               
+                <div class="row mb-4">
+                    <div class="col-md-7">
+  {{ form.department|as_crispy_field }}
+</div>
+
+
+<div class="col-md-5">
+    {{ form.role|as_crispy_field }}
+</div>
+   
+</div>
+                   
+               
+            </div>
+            {{form.mobile|as_crispy_field}}
+  
+            <div>
+                  
+                <input href="#" type="submit" value="submit" class="btn btn-success" >
+               
+            </div>
+        </form>
+        {% for message in messages %}
+          {{message}}
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock content %}
