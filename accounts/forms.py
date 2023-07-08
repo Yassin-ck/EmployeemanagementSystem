@@ -1,17 +1,20 @@
-from django.forms import ModelForm
+from django import forms
+from django.forms import PasswordInput
 from .models import User
 
-class UserForm(ModelForm):
+class UserForm(forms.ModelForm):
     
     class Meta:
         model = User
         
-        fields = ('first_name','last_name','email','role','department','mobile',
-                #   'username','password'
-                  )
+        fields = ('first_name','last_name','email','role','department','mobile','username')
+                  
         error_messages = {
             'mobile':{
-                'unique':'This mobile number is already exist'
+                'unique':'User with this  Mobile Number  already exists.'
+            },
+            'username':{
+                'unique':'User with this EmployeeCode already exists'
             }
         }
         labels = {
@@ -21,20 +24,26 @@ class UserForm(ModelForm):
             'role':'Role',
             'department':'Department',
             'mobile':'Mobile Number',
-            # 'password':'Password',
-            # 'username':'Username'
+            'username':'Employee-Code'
             
-            
-        
         }
     def __init__(self, *args, **kwargs):
         
         super().__init__(*args, **kwargs)
         self.fields['role'].required = False
-        self.fields['role'].empty_label = 'select'
-        self.fields['department'].empty_label = 'select'
+        empty_label = 'Select'  # Customize the empty label here
+        self.fields['role'].choices = [('', empty_label)] + list(self.fields['role'].choices)
+        self.fields['department'].choices = [('', empty_label)] + list(self.fields['department'].choices)
+    # def __init_subclass__(cls,*args,**kwargs):
+        # return super().__init_subclass__(*args,**kwargs)
+        
             
-class LoginForm(ModelForm):
+class LoginForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    widgets = {
+            'password': PasswordInput(attrs={'type': 'password'})
+        }
     class Meta:
         model = User
         fields = ('username','password')
@@ -43,10 +52,11 @@ class LoginForm(ModelForm):
                 'unique':''
             }
         }
+        labels ={
+            'username':'Employee-Code',
+            'password':'Password'
+        }
         
-        # def __init__(self,*args,**kwargs):
-        #     super().__init__(*args,**kwargs)
-            
             
        
             

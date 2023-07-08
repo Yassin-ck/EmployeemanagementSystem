@@ -1,52 +1,68 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
-<div class="container text-center mt-5 " >
-    <div class="row justify-content-center ">
-        <div class="col-md-7">
-    <form action="{% url 'register' %}" method="POST">
-        {% csrf_token %}
-        <div class="row">
-<div class="col-md-6">
-
-    {{form.first_name|as_crispy_field}}
-</div>
-<div class="col-md-6">
-
-    {{form.last_name|as_crispy_field}}
-</div>
-        </div>
-                {{form.email|as_crispy_field}}
+<div class="container text-center mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <form action="{% url 'register' %}" method="POST" class="needs-validation border m-3" novalidate>
                 
-                <div class="text-danger">
-
-               
+                {% csrf_token %}
+                <div class="m-3">
+                    
+                    <h2 class="m-2 text-light">User Registration</h2>
+                    <!-- <div class="bg-light m-3"> -->
+                        
+                        <div class="row">
+                            <div class="col-md-6 text-warning">
+                                <div class="mb-3">
+                                    {{ form.first_name|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-warning">
+                                <div class="mb-3">
+                                    {{ form.last_name|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                <div class="mb-3 text-warning">
+                    {{ form.email|as_crispy_field }}
+                </div>
+                
+                <div class="mb-3 text-warning">
+                    {{ form.username|as_crispy_field }}
+                </div>
+                
                 <div class="row mb-4">
-                    <div class="col-md-7">
-  {{ form.department|as_crispy_field }}
-</div>
-
-
-<div class="col-md-5">
-    {{ form.role|as_crispy_field }}
-</div>
-   
-</div>
-                   
-               
+                    <div class="col-md-7 text-warning">
+                        <div class="mb-3">
+                            {{ form.department|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-warning">
+                        <div class="mb-3">
+                            {{ form.role|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3 text-warning">
+                    {{ form.mobile|as_crispy_field }}
+                </div>
+                
+                <div class="mb-3">
+                    <input type="submit" value="Submit" class="btn btn-success">
+                </div>
             </div>
-            {{form.mobile|as_crispy_field}}
-  
+            <!-- </div> -->
+            </form>
+            
             <div>
-                  
-                <input href="#" type="submit" value="submit" class="btn btn-success" >
-               
+                {% include "includes/messages.html" %}
             </div>
-        </form>
-        {% for message in messages %}
-          {{message}}
-        {% endfor %}
+        </div>
     </div>
 </div>
-</div>
+
 {% endblock content %}

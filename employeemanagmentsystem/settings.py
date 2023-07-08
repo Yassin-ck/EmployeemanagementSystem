@@ -9,18 +9,25 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
 from pathlib import Path
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+from dotenv import load_dotenv
+load_dotenv() #take environment variable form .env
+import os 
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+SECRETKEY = os.getenv('SECRETKEY')
+POSTGRESPASSWORD = os.getenv('POSTGRESPASSWORD')
+EMAILHOSTPASSWORD = os.getenv('EMAILHOSTPASSWORD')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@j+&0c)fe_r5u-r5e28)r_$b@g+g(*@mkr872t71^+5cp*^k9t'
+SECRET_KEY = f'django-insecure-{SECRETKEY}'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'employeemanagementsystem',
         'USER': 'postgres',
-        'PASSWORD':'aaaa',
+        'PASSWORD':POSTGRESPASSWORD,
         'HOST':'localhost'
     }
 }
@@ -136,5 +143,5 @@ AUTH_USER_MODEL = 'accounts.User'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'mohammedyassinck@gmail.com'
-EMAIL_HOST_PASSWORD = 'eztpsfvboprvvjaz'
+EMAIL_HOST_PASSWORD = EMAILHOSTPASSWORD
 EMAIL_USE_TLS = True

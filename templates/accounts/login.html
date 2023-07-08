@@ -8,16 +8,15 @@
 
             <form action="{% url 'login' %}" method="POST">
                     {% csrf_token %}
+                    <h2 class="mb-5 text-success">User Login</h2>
+
                 {{form.username|as_crispy_field}}
                 {{form.password|as_crispy_field}}
-                <button  class="btn btn-success">Login</button>
+                <button  class="btn btn-success" >Login</button>
             </form>
-            {% for message in messages %}
-
-            {{message}}
-              
-            {% endfor %}
+             {% include "includes/messages.html" %}
         </div>
     </div>
 </div>
+
 {% endblock content %}
