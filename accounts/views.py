@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .forms import UserForm,LoginForm
+from .forms import UserForm,LoginForm,CodeForm
 from .models import User
 from django.http import HttpResponse
 from django.contrib import messages
@@ -7,7 +7,7 @@ import secrets
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate,login
 from django.views.decorators.cache import never_cache
-import re
+from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.views import PasswordResetView
 # from django.contrib.auth import get_user_model
 # from django.contrib.auth.hashers import check_password
@@ -46,9 +46,8 @@ def Registration(request):
                 elif len(mobile) != 10 or not mobile.isdigit():
                     form.add_error('mobile', 'Please enter a valid 10-digit mobile number')
                 else:
-                    user = form.save(commit=False)  
-                    user.mobile = mobile
-                    user.username = employeeCode
+                    user = form.save(commit=False) 
+                    user.username = employeeCode.upper()
                     temporary_password = secrets.token_urlsafe(10)
                     current_site = get_current_site(request) 
                     mail_subject = "Welcome, Here's Your EmployeeCode and Password to Login..." 
@@ -66,7 +65,6 @@ def Registration(request):
                         messages.error(request,'Email Not Send')
                     password = make_password(temporary_password)
                     user.password = password
-                        # print('hii')
                     user.save()
                         # print(user.save())
                     return redirect('emailpassid')
@@ -144,16 +142,12 @@ def loginPage(request):
 
         if user is not None:
             # print('uu ') 
-            if user.is_superuser:
-                # print('yoo')   
-                login(request,user)
-                return redirect('home')  
-            elif  user.last_login is None:
-                return redirect('passwordresetemail',id=user.id)
+            if user.is_superuser or user.last_login is not None:
+                request.session['pk']=user.pk
+                return redirect('twoFactorAuthentication')  
             else:
-                login(request,user)
-                messages.success(request,'Succesfully Loggined')
-                return redirect('home')
+                return redirect('passwordresetemail',id=user.id)
+            
 
         else:
             form.add_error('username','')
@@ -192,7 +186,7 @@ def loginPage(request):
     context = {'form': form}
     return render(request, 'accounts/login.html', context)
 
-
+@login_required(login_url='login')
 @never_cache
 def homePage(request):
     return HttpResponse('hii') 
@@ -279,4 +273,31 @@ def Login_Id_Pass_email(request):
 def resetpasswordemail_verificationPage(request):
     messages.success(request,'We Send You a Verification Link to your mail address , please confirm that ')
 
-    return render(request,'accounts/confirmation_messages.html')
+    return render(request,'accounts/confirmation_messages.html') 
+
+
+def TwoFactorAuthentication(request):               
+    form = CodeForm(request.POST)
+    pk = request.session.get('pk')
+    if pk:
+        user = User.objects.get(pk=pk)
+        code = user.code 
+        code_user = f"{user.username} : {user.code}"
+        if not request.POST:
+            print(code_user)           
+        if form.is_valid():
+            
+            print('valid')
+            number =form.cleaned_data.get('number')
+            
+            if str(code) == number:
+                print(number)
+                code.save()
+                login(request,user)
+                return redirect('home')
+            else:
+                return redirect('login')
+        else:
+            print(form.errors)  
+    return render(request,'accounts/twofactor_auth.html',{'form':form})
+   

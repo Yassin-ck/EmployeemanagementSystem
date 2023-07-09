@@ -22,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRETKEY = os.getenv('SECRETKEY')
 POSTGRESPASSWORD = os.getenv('POSTGRESPASSWORD')
 EMAILHOSTPASSWORD = os.getenv('EMAILHOSTPASSWORD')
+EMAIL = os.getenv('EMAIL')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -142,6 +143,6 @@ AUTH_USER_MODEL = 'accounts.User'
 #smpt configuration
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'mohammedyassinck@gmail.com'
+EMAIL_HOST_USER = EMAIL
 EMAIL_HOST_PASSWORD = EMAILHOSTPASSWORD
 EMAIL_USE_TLS = True

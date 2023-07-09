@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-import sys
+import random
+import secrets
 
 # Create your models here.
 
-   
+ 
     
 # class Role(models.Model):
 #     names = models.CharField(max_length=20)
@@ -43,5 +44,20 @@ class User(AbstractUser):
     
    
         
-     
+class Code(models.Model):
+    number = models.CharField(max_length=20,blank=True)
+    user = models.OneToOneField(User,on_delete=models.CASCADE)  
     
+    def __str__(self):
+        return str(self.number)   
+    
+    def save(self,*args,**kwargs):
+    
+        otp=secrets.randbelow(900000)+100000
+        otp=''.join(secrets.choice(str(otp))for i in range(6))
+        # print(otp)
+        self.number = otp
+        # print(self.number)
+        super().save(*args,**kwargs)
+        
+        

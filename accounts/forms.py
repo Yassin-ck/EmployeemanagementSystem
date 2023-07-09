@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import PasswordInput
-from .models import User
+from .models import User,Code
 
 class UserForm(forms.ModelForm):
     
@@ -31,11 +31,9 @@ class UserForm(forms.ModelForm):
         
         super().__init__(*args, **kwargs)
         self.fields['role'].required = False
-        empty_label = 'Select'  # Customize the empty label here
-        self.fields['role'].choices = [('', empty_label)] + list(self.fields['role'].choices)
-        self.fields['department'].choices = [('', empty_label)] + list(self.fields['department'].choices)
-    # def __init_subclass__(cls,*args,**kwargs):
-        # return super().__init_subclass__(*args,**kwargs)
+        self.fields['role'].widget.choices[0] = ('', 'Select')
+        self.fields['department'].widget.choices[0] = ('', 'Select ')
+   
         
             
 class LoginForm(forms.ModelForm):
@@ -58,7 +56,12 @@ class LoginForm(forms.ModelForm):
         }
         
             
-       
+class CodeForm(forms.ModelForm):
+    number =  forms.CharField(label='Code',help_text='Enter SMS Verification Code')
+   
+    class Meta:
+        model = Code
+        fields = ('number',)
             
             
         
