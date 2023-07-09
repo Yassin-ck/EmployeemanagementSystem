@@ -12,7 +12,9 @@
 
                 {{form.username|as_crispy_field}}
                 {{form.password|as_crispy_field}}
-                <button  class="btn btn-success" >Login</button>
+                <div>
+                <input type="submit" value="Login" class="btn btn-success">
+                </div>
             </form>
              {% include "includes/messages.html" %}
         </div>

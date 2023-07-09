@@ -146,3 +146,9 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = EMAIL
 EMAIL_HOST_PASSWORD = EMAILHOSTPASSWORD
 EMAIL_USE_TLS = True
+
+
+#twilio secret key and token
+
+ACCOUNT_SID = os.getenv('sid')
+AUTH_TOKEN = os.getenv('token')

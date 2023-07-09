@@ -3,11 +3,12 @@ from django.forms import PasswordInput
 from .models import User,Code
 
 class UserForm(forms.ModelForm):
-    
+    country_code = forms.CharField(max_length=4)
+    mobile = forms.CharField(max_length=10,help_text='Use a valid Mobile number with correct Country Code')
     class Meta:
         model = User
         
-        fields = ('first_name','last_name','email','role','department','mobile','username')
+        fields = ('first_name','last_name','email','role','department','mobile','country_code','username')
                   
         error_messages = {
             'mobile':{
@@ -23,21 +24,25 @@ class UserForm(forms.ModelForm):
             'email':'Email',
             'role':'Role',
             'department':'Department',
+            'country_code': '',
             'mobile':'Mobile Number',
             'username':'Employee-Code'
             
         }
+        
     def __init__(self, *args, **kwargs):
         
         super().__init__(*args, **kwargs)
         self.fields['role'].required = False
         self.fields['role'].widget.choices[0] = ('', 'Select')
         self.fields['department'].widget.choices[0] = ('', 'Select ')
-   
-        
+    
+    
+  
             
 class LoginForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
+
 
     widgets = {
             'password': PasswordInput(attrs={'type': 'password'})
@@ -57,7 +62,7 @@ class LoginForm(forms.ModelForm):
         
             
 class CodeForm(forms.ModelForm):
-    number =  forms.CharField(label='Code',help_text='Enter SMS Verification Code')
+    number =  forms.CharField(label='Code',help_text='Enter SMS Verification Code',required=False)
    
     class Meta:
         model = Code
