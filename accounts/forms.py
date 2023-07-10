@@ -62,7 +62,7 @@ class LoginForm(forms.ModelForm):
         
             
 class CodeForm(forms.ModelForm):
-    number =  forms.CharField(label='Code',help_text='Enter SMS Verification Code',required=False)
+    number =  forms.CharField(label='Code',required=False)
    
     class Meta:
         model = Code

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Side Bar Example</title>
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'dashboard' %}">Notice Board</a>
+                    <a href="#">Services</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                {% block contents %}
+                  
+                {% endblock contents %}
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+    {% endblock content %}

@@ -1,11 +1,12 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "includes/sidebar.html" %}
+{% block contents %}
   <div class="container text-center">
     <div class="m-5">
 
         <h1 class="text-info">Home</h1>
     </div>
     <a href="{% url 'logout' %}" type="submit" class="btn btn-danger">Logout</a>
+    <a href="{% url 'register' %}" type="submit" class="btn btn-danger">Add User</a>
 
   </div>
-{% endblock content %}
+{% endblock contents %}

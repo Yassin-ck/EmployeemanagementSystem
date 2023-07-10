@@ -19,7 +19,7 @@ from django.contrib.auth.tokens import default_token_generator
 
 
 # Create your views here.
-@login_required(login_url='login')
+# @login_required(login_url='login')
 def homePage(request):
     return render(request,'accounts/home.html')
 
@@ -108,6 +108,7 @@ def loginPage(request):
     return render(request, 'accounts/login.html', context)
 
 @never_cache
+
 def reset_password(request,id=0):
     if request.method == 'POST':
         password = request.POST.get('password')
@@ -147,7 +148,7 @@ def verify(request,uidb64,token):
     else:
         messages.error(request,'Error occurred while Activating')
         return redirect ('login')
-        
+     
 def EmialPassowrdreset(request,id=0):
     if request.method == 'POST':
         email = request.POST.get('email')

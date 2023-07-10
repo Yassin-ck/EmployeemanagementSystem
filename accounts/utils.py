@@ -1,4 +1,3 @@
-import os
 from twilio.rest import Client
 from django.conf import settings
 
@@ -14,4 +13,4 @@ def send_sms(user_code,phone_number):
                                 to=f'{phone_number}'
                             )
 
-    # print(message)
+   

@@ -4,5 +4,7 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=User)
 def post_save_generator_code(sender,instance,created,*args,**kwargs):
+
     if created:
         Code.objects.create(user=instance)
+

@@ -5,13 +5,6 @@ import secrets
 
 # Create your models here.
 
- 
-    
-# class Role(models.Model):
-#     names = models.CharField(max_length=20)
-    
-#     def __str__(self):
-#         return self.names
 class User(AbstractUser):
     class Role(models.TextChoices):
         HR = 'HR','Hr'
@@ -40,9 +33,7 @@ class User(AbstractUser):
             
         else:
             return super().save(*args,**kwargs)
-        
-    
-   
+          
         
 class Code(models.Model):
     number = models.CharField(max_length=20,blank=True)
@@ -51,18 +42,13 @@ class Code(models.Model):
     def __str__(self):
         return str(self.number)   
     
-    
 
-    
     def save(self,*args,**kwargs):
-    
-        otp=secrets.randbelow(900000)+100000
+        otp = random.randint(100000, 999999)
         otp=''.join(secrets.choice(str(otp))for i in range(6))
-        # print(otp)
         self.number = otp
-        # print(self.number)
         super().save(*args,**kwargs)
         
         
         
-        
+    

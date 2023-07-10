@@ -1,0 +1,22 @@
+{% extends "includes/sidebar.html" %}
+{% load crispy_forms_tags %}  <!-- Correct the name of the crispy_forms_tags module -->
+
+{% block contents %}
+<div class="container text-center">
+    <div class="row justify-content-space-between">
+        <div class="col-md-6">  <!-- Add a class to specify the column width -->
+            <div class="text-center">
+                <form action="" method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+ <!-- Correct the name of the form object -->
+                        <div>
+                                <input type="submit" value="submit" class="btn btn-warning">
+                        </div>
+                </form>
+                {% include "includes/messages.html" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock contents %}

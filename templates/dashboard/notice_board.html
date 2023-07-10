@@ -1,0 +1,32 @@
+<!-- my_template.html -->
+{% extends "includes/sidebar.html" %}
+{% block contents %}
+
+<form action="{% url 'dashboard' %}" method="GET"></form>
+        {% for notice in notice_board_list %}
+        <div class="card text-center">
+                <div class="card-header">
+                  Featured
+                </div>
+                <div class="card-body">
+                  <h3 class="card-title">{{notice.title}}</h3>
+                  <h5 class="card-title">{{notice.subject}}</h5>
+                  <p class="card-text">{{notice.content}}</p>
+                  <p class="card-text">{{notice.image}}</p>
+                  <a href="{% url 'notice_hr_edit' notice.id %}" class="btn btn-primary">Edit</a>
+                  <a href="{% url 'notice_hr_delete' notice.id %}" class="btn btn-danger">Delete</a>
+                </div>
+                
+                <div class="card-footer text-body-secondary">
+                  2 days ago
+                </div>
+              </div>
+        {% endfor %}
+
+<div>
+        <a href="{% url 'notice_hr_create' %}" class="btn btn-info">Add Info</a>
+</div>
+   
+</div>
+
+{% endblock contents %}
