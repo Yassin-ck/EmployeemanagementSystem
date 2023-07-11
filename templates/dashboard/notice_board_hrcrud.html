@@ -6,7 +6,7 @@
     <div class="row justify-content-space-between">
         <div class="col-md-6">  <!-- Add a class to specify the column width -->
             <div class="text-center">
-                <form action="" method="POST">
+                <form action="" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form|crispy }}
  <!-- Correct the name of the form object -->
@@ -15,8 +15,21 @@
                         </div>
                 </form>
                 {% include "includes/messages.html" %}
+                <!-- {% if form.errors %}
+                <div class="alert alert-danger text-danger mt-3" id="message-alerts">{{ form.errors }}</div>
+                {% endif %} -->
             </div>
         </div>
     </div>
 </div>
 {% endblock contents %}
+<!-- <script>
+        setTimeout(function() {
+            var messageAlerts = document.querySelectorAll('#message-alerts');
+            if (messageAlerts) {
+                messageAlerts.forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }
+        }, 5000);
+    </script> -->

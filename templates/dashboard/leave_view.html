@@ -1,0 +1,26 @@
+
+
+{% for leave in leaves %}
+
+
+
+<div class="card mb-3 fixed" style="max-width: 540px;">
+    <div class="row g-0">
+      <div class="col-md-4">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{leave.start_date}}</h5>
+          <p class="card-text">{{leave.end_date}}</p>
+          <p class="card-text">{{leave.reason}}<small class="text-body-secondary">Last updated 3 mins ago</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <a href="{% url 'leave_form_edit' leave.id %}" class="btn btn-success">Edit</a>
+    <a href="{% url 'leave_form_delete' leave.id %}" class="btn btn-success">Delete</a>
+  </div>
+{% endfor %}
+
+

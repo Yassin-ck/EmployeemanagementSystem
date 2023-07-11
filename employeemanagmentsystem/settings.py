@@ -19,6 +19,8 @@ import os
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 SECRETKEY = os.getenv('SECRETKEY')
 POSTGRESPASSWORD = os.getenv('POSTGRESPASSWORD')
 EMAILHOSTPASSWORD = os.getenv('EMAILHOSTPASSWORD')

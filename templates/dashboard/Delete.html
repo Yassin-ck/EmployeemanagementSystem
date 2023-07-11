@@ -4,10 +4,15 @@
 <div class="container text-center mt-5">
     <div class="row justifycontent-center">
         <div class="text-center">
+      
             <h2 class="text-success">Delete Confirmation</h2>
+
+              
             {% for verify in messages %}
-              <div class="alert-light text-danger m-4"><strong>{{verify}}</strong></div>
+            <div class="alert-light text-danger m-4"><strong>{{verify}}</strong></div>
             {% endfor %}
+
+            
             <form method="POST" action="">
                         {% csrf_token %}
                 <button type="submit" class="btn btn-danger mt-5">Delete</button>

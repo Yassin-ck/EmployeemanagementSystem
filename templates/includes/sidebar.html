@@ -10,24 +10,35 @@
 </head>
 <body>
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3">
+        <div class="row col-md-12">
+            <div class="col-md-2 d-flex justify-content-between">
                 <div class="sidebar">
                     <a href="{% url 'home' %}">Home</a>
                     <a href="{% url 'dashboard' %}">Notice Board</a>
-                    <a href="#">Services</a>
-                    <a href="#">Contact</a>
+                    <a href="{% url 'department_notice_view' %}">DepartmentNotice</a>
+                    <a href="{% url 'leave_form' %}">Leave Form</a>
                 </div>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-7  " style="height: 100vh;">
                 {% block contents %}
                   
                 {% endblock contents %}
                 
             </div>
+            <div class="col-md-3  d-flex justify-content-between" >
+                {% if 'leave_form' in request.path %}
+                  
+                {% include "dashboard/leave_view.html" %}
+                {% else %}
+                hi
+                {% include "dashboard/recentscontent.html" %}
+                {% endif %}
+            </div>
+            
         </div>
     </div>
+   
 </body>
 </html>
 
-    {% endblock content %}
+{% endblock content %}

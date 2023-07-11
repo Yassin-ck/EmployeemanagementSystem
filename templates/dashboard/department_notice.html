@@ -1,0 +1,26 @@
+{% extends "includes/sidebar.html" %}
+{% block contents %}
+
+<form action="{% url 'department_notice_view' %}" method="GET">
+        
+        {% for department_notice in department_notices %}
+       
+                        <h3 class="card-title">{{department_notice.title}}</h3>
+                        <h5 class="card-title">{{department_notice.subject}}</h5>
+                        <p class="card-text">{{department_notice.content}}</p>
+                        {% if department_notice.image %}
+                        <img src="{{ MEDIA_URL }}{{ department_notice.image.url }}" alt="Image">
+                        
+                        {% endif %}
+                        <a href="{% url 'department_notice_edit' department_notice.id %}" class="btn btn-primary">Edit</a>
+                        <a href="{% url 'department_notice_delete' department_notice.id %}" class="btn btn-danger">Delete</a>
+               
+        {% endfor %}
+        
+        <div>
+                <a href="{% url 'department_notice_create' %}" class="btn btn-info">Add Info</a>
+        </div>
+        
+
+</form>
+{% endblock contents %}
