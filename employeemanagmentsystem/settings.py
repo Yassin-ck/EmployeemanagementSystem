@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'accounts',
     'Dashboard',
     'crispy_forms',
-    'crispy_bootstrap5'
+    'crispy_bootstrap5',
+    'BruteBuster',
 ]
 
 CRISPY_TEMPLATE_PACK ='bootstrap5'
@@ -58,6 +59,7 @@ CRISPY_TEMPLATE_PACK ='bootstrap5'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'BruteBuster.middleware.RequestMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -98,6 +100,23 @@ DATABASES = {
         'HOST':'localhost'
     }
 }
+
+# custom Authentication with brutebuster
+# AUTHENTICATION_BACKENDS = [
+#         'brutebuster.backends.BruteBusterBackend',
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
+
+
+
+
+# Configure the BruteBuster settings
+BRUTE_BUSTER = {
+    'MAX_FAILED_ATTEMPTS': 3,  # Maximum number of allowed failed attempts
+    'WAITING_PERIOD': 30,      # Waiting period in seconds between subsequent login attempts
+    'IP_BLOCK_DURATION': 300,  # Duration in seconds to block an IP address
+}
+
 
 
 # Password validation

@@ -4,12 +4,19 @@
 <div class="container text-center mt-5">
     <div class="row justifycontent-center">
         <div class="text-center">
-            <h2 class="text-success">Mail Verification</h2>
+              {% if 'paycheque_form' in request.path  %}
+                <h2 class="text-success">Pay Cheque Successfull</h2>
+                {% else %}
+                <h2 class="text-success">Mail Verification</h2>
+              {% endif %}
             {% for verify in messages %}
               <div class="alert-light text-success m-4"><strong>{{verify}}</strong></div>
             {% endfor %}
             {% if 'emailpassid/' in request.path %}
             <a href="{% url 'register' %}" class="btn btn-warning mt-5">Add New User</a>
+            {% elif 'paycheque_form' in request.path %}
+            <a href="{% url 'paycheque_form' %}" class="btn btn-warning mt-5">Paycheque</a>
+
             {% endif %}
         </div>
     </div>

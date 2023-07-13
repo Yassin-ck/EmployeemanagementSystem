@@ -1,6 +1,9 @@
 {% extends "includes/sidebar.html" %}
 {% block contents %}
+<div className=" d-flex flex-column container ">
+  <div className="row gap-5">
 
+        
 <form action="{% url 'department_notice_view' %}" method="GET">
         
         {% for department_notice in department_notices %}
@@ -18,8 +21,10 @@
         {% endfor %}
         
         <div>
-                <a href="{% url 'department_notice_create' %}" class="btn btn-info">Add Info</a>
         </div>
+        </div>
+        </div>
+                <a href="{% url 'department_notice_create' %}" class="btn btn-info">Add Info</a>
         
 
 </form>

@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from .forms import NoticeboardForm,DepartmentnoticeForm,LeaveForm
-from .models import Notice_board,Department_notice,LeaveApply
+from .forms import NoticeboardForm,DepartmentnoticeForm,LeaveForm,TodayTaskForm,PaychequeForm
+from .models import Notice_board,Department_notice,LeaveApply,TodayTasks,Paycheque
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -29,7 +29,10 @@ def Notice_board_hr_crud(request, id=0):
             form = NoticeboardForm(request.POST,request.FILES,instance=notice)
    
         if form.is_valid():
-            form.save()
+            print(form)
+            notice = form.save(commit=False)
+            notice.save()
+            
             return redirect('dashboard') 
         # messages.error(request,'hell')  
         return HttpResponse('image size is too big')
@@ -116,4 +119,79 @@ def Leave_user_delete(request,id=0):
         leave = LeaveApply.objects.get(pk=id)
         leave.delete()
         return redirect ('leave_form')
+    return render(request,'dashboard/Delete.html')
+
+
+
+def Today_task_form(request,id=0):
+    if request.method == 'POST':
+        if id==0:
+            form = TodayTaskForm(request.POST)
+        else:
+            comments = TodayTasks.objects.get(pk=id)
+            form = TodayTaskForm(request.POST,instance=comments)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.save()
+            return redirect('today_task_view')
+        else:
+            return HttpResponse('hell')
+    else:
+        if id == 0:
+            form =TodayTaskForm()
+        else:
+            comments = TodayTasks.objects.get(pk=id)
+            form = TodayTaskForm(instance=comments)
+        return render(request,'dashboard/today_task_form.html',{'form':form})
+    
+def Today_task_view(request):
+    comments = TodayTasks.objects.all()
+    return render(request,'dashboard/today_task_view.html',{'comments':comments})
+
+def Today_task_delete(request,id=0):
+    if request.method == 'POST':
+        comment = TodayTasks.objects.get(pk=id)
+        comment.delete()  
+        return redirect('home')  
+    return render(request,'dashboard/Delete.html')
+            
+
+
+def Paycheque_form(request,id=0):
+    if request.method == 'POST':
+        if id == 0:
+            form = PaychequeForm(request.POST)
+        else:
+            cheques = Paycheque.objects.get(pk=id)
+            form = PaychequeForm(request.POST,instance=cheques)
+        # print('hii')   
+        if form.is_valid():
+            print(form)
+            paycheque = form.save(commit=False)
+            paycheque.employer = request.user
+        
+            # paycheque.updated_at = 
+            paycheque.save()
+            return render(request,'accounts/confirmation_messages.html')
+        else:
+            print(form.errors)
+            return HttpResponse('hb')
+    else:
+        if id == 0:
+            form = PaychequeForm()
+        else:
+            cheques = paycheque.objects.get(pk=id)
+            form = PaychequeForm(instance=cheques)
+        return render (request,'dashboard/paycheque_form.html',{'form':form})
+            
+def Paycheque_view(request):
+    cheques = Paycheque.objects.all()
+    return render (request,'dashboard/paycheque_view.html',{'cheques':cheques})
+
+def Paycheque_delete(request,id=0):
+    if request.method == 'POST':
+        cheques = Paycheque.objects.get(pk=id)
+        cheques.delete()
+        return redirect('paycheque_form')
     return render(request,'dashboard/Delete.html')

@@ -3,6 +3,9 @@
 {% block contents %}
 
 <form action="{% url 'dashboard' %}" method="GET">
+<div className=" d-flex flex-column container ">
+  <div className="row gap-5">
+
         
         {% for notice in notice_board_list %}
        
@@ -19,8 +22,10 @@
         {% endfor %}
         
         <div>
-                <a href="{% url 'notice_hr_create' %}" class="btn btn-info">Add Info</a>
         </div>
+        </div>
+        </div>
+                <a href="{% url 'notice_hr_create' %}" class="btn btn-info">Add Info</a>
         
 
 </form>

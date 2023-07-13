@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import User
 from PIL import Image
+from datetime import datetime
 
 # Create your models here.
 
@@ -10,10 +11,21 @@ class Notice_board(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
     image = models.ImageField(upload_to='images/',blank=True)
+    created_at = models.DateTimeField(default=datetime.now())
 
     
-    
-    
+    def save(self,*args,**kwargs):
+        super().save(*args,**kwargs)
+        if self.image:
+            img = Image.open(self.image.path)
+            
+            if img.height > 85 or img.width > 85:
+                output_size = (85,85)
+                img.thumbnail(output_size)
+                img.save(self.image.path)
+        else:
+            super().save(*args, **kwargs)
+
     
     
     
@@ -26,19 +38,24 @@ class Department_notice(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
     image = models.ImageField(upload_to='department/',blank=True)
+    created_at = models.DateTimeField(default=datetime.now())
     
     def __str__(self):
         return self.title
     
     def save(self,*args,**kwargs):
         super().save(*args,**kwargs)
-        
-        img = Image.open(self.image.path)
-        
-        if img.height > 85 or img.width > 85:
-            output_size = (85,85)
-            img.thumbnail(output_size)
-            img.save(self.image.path)
+        if self.image:
+            img = Image.open(self.image.path)
+            
+            if img.height > 85 or img.width > 85:
+                output_size = (85,85)
+                img.thumbnail(output_size)
+                img.save(self.image.path)
+        else:
+            super().save(*args, **kwargs)         
+
+
             
             
 class LeaveApply(models.Model):
@@ -47,9 +64,52 @@ class LeaveApply(models.Model):
     end_date = models.DateField()
     reason = models.TextField()  
     approved_by_hr =models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='approved_leaves_hr',blank=True)
-    
+    created_at = models.DateTimeField(default=datetime.now())
+
     def __str__(self) :
         return f"{self.user.username}'s Leave Request"
     
     
    
+
+
+class TodayTasks(models.Model):
+    notice_board = models.ForeignKey(Notice_board, on_delete=models.CASCADE, null=True)
+    department_notice_board = models.ForeignKey(Department_notice, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    created_at = models.DateTimeField(default=datetime.now())
+    
+    
+    def __str__(self):
+        return f'{self.user} Commented {self.comment}'
+    
+    
+    
+    
+
+
+
+
+class Paycheque(models.Model):
+    employer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='issued_paycheques',
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='paycheques',
+    )
+    pay_period = models.DateField()
+    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    deductions = models.DecimalField(max_digits=10, decimal_places=2)
+    net_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    incentives_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    created_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(default=datetime.now())
+
+    def __str__(self):
+        return f'Paycheque for {self.user} on {self.pay_period}'
+

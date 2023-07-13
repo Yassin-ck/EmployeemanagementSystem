@@ -1,6 +1,8 @@
 from django import forms
-from .models import Notice_board,Department_notice,LeaveApply
+from .models import Notice_board,Department_notice,LeaveApply,TodayTasks,Paycheque
 from PIL import Image
+class DateInput(forms.DateInput):
+    input_type='date'    
 
 class NoticeboardForm(forms.ModelForm):
     image = forms.ImageField(required=False)
@@ -16,8 +18,11 @@ class NoticeboardForm(forms.ModelForm):
     #     return image
     class Meta:
         model = Notice_board
-        fields = '__all__'
+        fields = ('title','subject','content','image')
         
+        def __init__(self,*args,**kwargs):
+            super().save(*args,**kwargs)
+            self.fields['image'].required = False
         
         
 class DepartmentnoticeForm(forms.ModelForm):
@@ -25,12 +30,10 @@ class DepartmentnoticeForm(forms.ModelForm):
     subject =  forms.CharField(required=False)
     class Meta:
         model = Department_notice
-        fields = '__all__'
+        fields = ('title','subject','content','image')
         
         
 # Dateinput        
-class DateInput(forms.DateInput):
-    input_type='date'    
 
 class LeaveForm(forms.ModelForm):  
     start_date = forms.DateField(widget=DateInput)
@@ -42,4 +45,19 @@ class LeaveForm(forms.ModelForm):
         fields = ('start_date','end_date','reason')
        
        
+
+
+class TodayTaskForm(forms.ModelForm):
     
+    class Meta:
+        model = TodayTasks
+        fields = ('comment',)
+        
+        
+
+class PaychequeForm(forms.ModelForm): 
+    pay_period = forms.DateField(widget=DateInput)
+       
+    class Meta:
+        model = Paycheque
+        fields = ('user','pay_period','gross_salary','deductions','net_pay','incentives_bonus')

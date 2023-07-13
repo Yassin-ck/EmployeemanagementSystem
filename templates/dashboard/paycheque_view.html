@@ -1,0 +1,19 @@
+{% extends "includes/sidebar.html" %}
+
+{% block contents %}
+<div className=" d-flex flex-column container ">
+  <div className="row gap-5">
+
+{% for cheque in cheques %}
+  <div class="container">
+
+      <h4>{{cheque}}</h4>
+          <a href="{% url 'paycheque_edit' cheque.id %}">edit</a>
+          <a href="{% url 'paycheque_delete' cheque.id %}">delete</a>
+  </div>
+{% endfor %}
+  </div>
+  </div>
+
+
+{% endblock contents %}

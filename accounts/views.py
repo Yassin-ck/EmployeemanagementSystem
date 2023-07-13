@@ -16,8 +16,7 @@ from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
-
-
+# from BruteBuster.signals import 
 # Create your views here.
 # @login_required(login_url='login')
 def homePage(request):
@@ -219,3 +218,21 @@ def logout(request):
     logout(request)
     return redirect('home')
     
+def login_attempt_error(request,*args,**kwargs):
+    messages.error(request,'error on login')
+    return render(request,'accounts/login.html')
+
+
+# from BruteBuster.models import FailedAttempt
+
+# def check_failed_attempts():
+#     # Get the count of failed attempts
+#     failed_attempts_count = FailedAttempt.objects.count()
+
+#     if failed_attempts_count > 0:
+#         print("Failed attempts have occurred.")
+#     else:
+#         print("No failed attempts.")
+
+# # Call the function to check for failed attempts
+# check_failed_attempts()
