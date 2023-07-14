@@ -2,10 +2,9 @@ from django.db import models
 from accounts.models import User
 from PIL import Image
 from datetime import datetime
-
+from django.shortcuts import HttpResponse
+from django.core.files.storage import default_storage
 # Create your models here.
-
-
 class Notice_board(models.Model):
     title = models.CharField(max_length=150)
     subject = models.CharField(max_length=200)
@@ -83,13 +82,6 @@ class TodayTasks(models.Model):
     
     def __str__(self):
         return f'{self.user} Commented {self.comment}'
-    
-    
-    
-    
-
-
-
 
 class Paycheque(models.Model):
     employer = models.ForeignKey(
@@ -113,3 +105,58 @@ class Paycheque(models.Model):
     def __str__(self):
         return f'Paycheque for {self.user} on {self.pay_period}'
 
+
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    income = models.FloatField()
+    address1 = models.TextField()
+    address2 = models.TextField()
+    city = models.CharField(max_length=20, unique=False)
+    state = models.CharField(max_length=20, unique=False)
+    country = models.CharField(max_length=20, unique=False)
+    alternative_contact_number = models.CharField(max_length=10)
+    profile_picture = models.ImageField(upload_to="userprofile/")
+    experience = models.CharField(max_length=255)
+    
+    
+    def __str__(self):
+        return self.user.username 
+    
+    def save(self,*args,**kwargs):
+        super().save(*args,**kwargs)
+        if self.profile_picture:
+            img = Image.open(self.profile_picture.path)
+            
+            if img.height > 85 or img.width > 85:
+                output_size = (85,85)
+                img.thumbnail(output_size)
+                img.save(self.profile_picture.path)
+             
+    
+    # def save(self, *args, **kwargs):
+    #     if self.pk and self.profile_picture:
+    #         old_obj = UserProfile.objects.get(pk=self.pk)
+    #         if self.profile_picture != old_obj.profile_picture:
+    #             # Delete the old profile picture
+    #             old_profile_picture = old_obj.profile_picture
+    #             if default_storage.exists(old_profile_picture.name):
+    #                 default_storage.delete(old_profile_picture.name)
+
+    #     super().save(*args, **kwargs)
+    
+    # def save(self,*args,**kwargs):
+    #     super().save(*args,**kwargs)
+    #     if self.profile_picture:
+    #         img = Image.open(self.profile_picture.path)
+            
+    #         if img.height > 85 or img.width > 85:
+    #             output_size = (85,85)
+    #             img.thumbnail(output_size)
+    #             img.save(self.profile_picture.path)
+    #     else:
+    #         self.profile_picture.save()
+                
+   
+            

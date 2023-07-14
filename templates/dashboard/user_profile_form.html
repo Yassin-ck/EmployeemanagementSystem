@@ -1,0 +1,13 @@
+
+
+
+{% extends "includes/sidebar.html" %}
+{% load crispy_forms_tags %}
+{% block contents %}
+<form action="" method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {{userform|crispy}}
+    {{profileform|crispy}}
+   
+<button type="submit" class="bg-info">submit</button>
+{% endblock contents %}

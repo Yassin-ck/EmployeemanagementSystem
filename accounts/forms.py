@@ -3,20 +3,21 @@ from django.forms import PasswordInput
 from .models import User,Code
 
 class UserForm(forms.ModelForm):
-    country_code = forms.CharField(max_length=4)
-    mobile = forms.CharField(max_length=10,help_text='Use a valid Mobile number with correct Country Code')
+    mobile = forms.CharField(max_length=13)
     class Meta:
         model = User
+        exclude = ['password']
         
-        fields = ('first_name','last_name','email','role','department','mobile','country_code','username')
+        # fields = ('first_name','last_name','email','role','department','mobile','country_code','username')
+        fields = '__all__'
                   
         error_messages = {
+            'username':{
+                'unique':'User with this EmployeeCode already exists'
+            },
             'mobile':{
                 'unique':'User with this  Mobile Number  already exists.'
             },
-            'username':{
-                'unique':'User with this EmployeeCode already exists'
-            }
         }
         labels = {
             'first_name' : 'First Name',
@@ -24,7 +25,6 @@ class UserForm(forms.ModelForm):
             'email':'Email',
             'role':'Role',
             'department':'Department',
-            'country_code': '',
             'mobile':'Mobile Number',
             'username':'Employee-Code'
             

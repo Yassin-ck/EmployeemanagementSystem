@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import random
 import secrets
+from datetime import datetime
 
 # Create your models here.
 
@@ -22,9 +23,15 @@ class User(AbstractUser):
     mobile = models.CharField(default=None,max_length=13)
     role = models.CharField(max_length=50,choices=Role.choices)
     department = models.CharField(max_length=50,choices=Department.choices)
-    
+    date_joined = models.DateField(default=datetime.now())
+    is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email','department','mobile']
+    
+    
+    
     def save(self,*args,**kwargs):
         if self.is_superuser:
             self.role = self.base_role

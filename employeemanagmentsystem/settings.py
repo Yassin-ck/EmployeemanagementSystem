@@ -110,14 +110,6 @@ DATABASES = {
 
 
 
-# Configure the BruteBuster settings
-BRUTE_BUSTER = {
-    'MAX_FAILED_ATTEMPTS': 3,  # Maximum number of allowed failed attempts
-    'WAITING_PERIOD': 30,      # Waiting period in seconds between subsequent login attempts
-    'IP_BLOCK_DURATION': 300,  # Duration in seconds to block an IP address
-}
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

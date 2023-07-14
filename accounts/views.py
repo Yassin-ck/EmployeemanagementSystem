@@ -4,11 +4,13 @@ from .models import User
 from django.http import HttpResponse
 from django.contrib import messages
 import secrets
+import re
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate,login
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
-from .utils import send_sms # OTP Verification
+# OTP Verification
+from .utils import send_sms
 #email sending
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -16,64 +18,74 @@ from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
-# from BruteBuster.signals import 
+#Blocking user After 3 failed Login Attempt
+from BruteBuster.models import FailedAttempt
+from Dashboard.models import UserProfile
+
 # Create your views here.
 # @login_required(login_url='login')
 def homePage(request):
     return render(request,'accounts/home.html')
 
 def Registration(request):
-    
     if request.method == 'GET':
         form = UserForm()
     else:
         form = UserForm(request.POST)
-        if form.is_valid():          
-            print('hii1')
+        if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             mobile = form.cleaned_data['mobile']
             role = form.cleaned_data['role']
             email = form.cleaned_data['email']
             employeeCode = form.cleaned_data['username']
-            country_code = form.cleaned_data['country_code']
-            try :
-                user = User.objects.get(email=email)
-                form.add_error('email','Same Email With User Already exist')
+
+            try:
+                User.objects.get(email=email)
+                form.add_error('email', 'User with the same email already exists')
             except User.DoesNotExist:
-                if len(mobile) != 10 or not mobile.isdigit():
-                    form.add_error('mobile', 'Please enter a valid 10-digit mobile number')
-                else:
-                    user = form.save(commit=False) 
-                    user.username = employeeCode.upper()
-                    user.mobile = country_code+mobile
-                    temporary_password = secrets.token_urlsafe(10)
-                    current_site = get_current_site(request) 
-                    mail_subject = "Welcome, Here's Your EmployeeCode and Password to Login..." 
-                    message = render_to_string('accounts/login_id_pass.html',{
-                        'user':user,
-                        'password':temporary_password,
-                        'domain':current_site,
-                            # 'uid':urlsafe_base64_encode(force_bytes(user.pk))
-                            })
-                    to_email = email
-                    try:
-                        send_email = EmailMessage(mail_subject,message,to=[to_email])
-                        send_email.send()
-                    except:
-                        messages.error(request,'Email Not Send')
-                    password = make_password(temporary_password)
-                    user.password = password
-                    user.save()
-                    return redirect('emailpassid')
-                    
+                try:
+                    User.objects.get(username=employeeCode.upper())
+                    messages.error(request, 'EmployeeCode already in use')
+                except User.DoesNotExist:
+                    if len(mobile) <= 12 and re.match(r'^\+\d+$', mobile):
+                        form.add_error('mobile', 'Please enter a valid mobile number with CountryCode (e.g., +1234567890)')
+                        print('kk')
+                    else:
+                        print('jhgf')
+                        user = form.save(commit=False)
+                        user.username = employeeCode.upper()
+                        temporary_password = secrets.token_urlsafe(10)
+                        current_site = get_current_site(request)
+                        mail_subject = "Welcome, Here's Your EmployeeCode and Password to Login..."
+                        message = render_to_string('accounts/login_id_pass.html', {
+                            'user': user,
+                            'password': temporary_password,
+                            'domain': current_site,
+                        })
+                        to_email = email
+                        try:
+                            send_email = EmailMessage(mail_subject, message, to=[to_email])
+                            send_email.send()
+                        except:
+                            messages.error(request, 'Email not sent')
 
+                        password = make_password(temporary_password)
+                        user.password = password
+                        user.save()
                         
-    context ={
-        'form':form,
-        }  
+                        
+                        profile = UserProfile()
+                        profile.user_id = user.id
+                        profile.profile_picture = 'userprofile/default.profilepicture.jpg'
+                        profile.save()
+                        return redirect('emailpassid')
 
-    return render(request, 'accounts/register.html', context)    
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'accounts/register.html', context)   
 
 
 
@@ -98,8 +110,15 @@ def loginPage(request):
         else:
             form.add_error('username','')
             form.add_error('password','')
-            messages.error(request,'Id or Password is not Correct')
-        
+            user = FailedAttempt.objects.get(username = EmployeeCode)
+            user_blocked = user.blocked()
+            if user_blocked:
+                messages.error(request,f"""Your Account Has Been Blocked...
+                               Try Again After Sometimes""")
+            else:
+                messages.error(request,f"""Incorrect Id or Password!!!  
+                  You tried {user.failures} Attempts""")
+           
     else:
         form = LoginForm()
     
@@ -212,27 +231,7 @@ def TwoFactorAuthentication(request):
                 
     return render(request,'accounts/twofactor_auth.html',{'form':form})
            
-
-
 def logout(request):
     logout(request)
     return redirect('home')
     
-def login_attempt_error(request,*args,**kwargs):
-    messages.error(request,'error on login')
-    return render(request,'accounts/login.html')
-
-
-# from BruteBuster.models import FailedAttempt
-
-# def check_failed_attempts():
-#     # Get the count of failed attempts
-#     failed_attempts_count = FailedAttempt.objects.count()
-
-#     if failed_attempts_count > 0:
-#         print("Failed attempts have occurred.")
-#     else:
-#         print("No failed attempts.")
-
-# # Call the function to check for failed attempts
-# check_failed_attempts()

@@ -2,7 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # path('check-failed-attempts/', views.check_failed_attempts, name='check_failed_attempts'),
     path('register/',views.Registration,name='register'),
     path('',views.loginPage,name='login'),
     path('logout/',views.loginPage,name='logout'),
