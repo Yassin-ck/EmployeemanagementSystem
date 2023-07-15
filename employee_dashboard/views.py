@@ -8,6 +8,9 @@ from accounts.models import User
 from accounts.forms import UserForm
 from PIL import Image
 from django.shortcuts import get_object_or_404
+
+from employeemanagmentsystem.decorators import unauthenticated_user,allowed_users
+
 # Create your views here.
 # @login_required(login_url='login')
 def Notice_board_view(request):
@@ -15,6 +18,7 @@ def Notice_board_view(request):
         notice_board_list = Notice_board.objects.all()
         return render(request,'dashboard/notice_board.html',{'notice_board_list':notice_board_list}) 
 # @login_required(login_url='login')
+@allowed_users(allowed_roles=['HumanResource'])
 def Notice_board_hr_crud(request, id=0):
     if request.method == 'GET':
         if id == 0:
@@ -39,7 +43,9 @@ def Notice_board_hr_crud(request, id=0):
             return redirect('dashboard') 
         # messages.error(request,'hell')  
         return HttpResponse('image size is too big')
-          
+    
+    
+@allowed_users(allowed_roles=['HumanResources'])         
 def Notice_board_hr_delete(request,id):
 
     if request.method =='POST':
@@ -57,7 +63,8 @@ def Department_notice_view(request):
         department_notices = Department_notice.objects.all()
         return render(request,'dashboard/department_notice.html',{'department_notices':department_notices})
     
-    
+   
+@allowed_users(allowed_roles=['manager'])         
 def Department_notice_crud(request,id=0):
     if request.method == 'POST':  
         if id == 0:
@@ -78,6 +85,7 @@ def Department_notice_crud(request,id=0):
                          
 
 
+@allowed_users(allowed_roles=['manager'])         
 def Department_notice_delete(request,id=0):
         if request.method == 'POST':
             try:
@@ -112,8 +120,13 @@ def Leave_user_form(request,id=0):
         return render(request,'dashboard/leave_form.html',{'form':form})
         
 
-def Leave_user_view(request):
-    leaves = LeaveApply.objects.all()
+def Leave_user_view(request,id=0):
+    if id == 0:
+        leaves = LeaveApply.objects.all()
+    else:
+        user = get_object_or_404(User,pk=id)
+        leaves = LeaveApply.objects.filter(user=user)
+        
     return render(request,'dashboard/leave_view.html',{'leaves':leaves})
 
 
@@ -161,6 +174,7 @@ def Today_task_delete(request,id=0):
             
 
 
+@allowed_users(allowed_roles=['HumanResource'])         
 def Paycheque_form(request,id=0):
     if request.method == 'POST':
         if id == 0:
@@ -188,10 +202,15 @@ def Paycheque_form(request,id=0):
             form = PaychequeForm(instance=cheques)
         return render (request,'dashboard/paycheque_form.html',{'form':form})
             
-def Paycheque_view(request):
-    cheques = Paycheque.objects.all()
+def Paycheque_view(request,id=0):
+    if id == 0: 
+        cheques = Paycheque.objects.all()
+    else:
+        user = get_object_or_404(User,pk=id)
+        cheques = Paycheque.objects.filter(user=user) 
     return render (request,'dashboard/paycheque_view.html',{'cheques':cheques})
 
+@allowed_users(allowed_roles=['HumanResource'])         
 def Paycheque_delete(request,id=0):
     if request.method == 'POST':
         cheques = Paycheque.objects.get(pk=id)
@@ -203,6 +222,7 @@ def Paycheque_delete(request,id=0):
 
 
 
+@allowed_users(allowed_roles=['HumanResource'])         
 def user_profile_form(request, id=0):
     if request.method == 'POST':
         userprofile = get_object_or_404(UserProfile, pk=id)
@@ -284,6 +304,7 @@ def user_profile_view(request,id=0):
         user_profile = UserProfile.objects.get(pk=id)
         return render (request,'dashboard/user_profile_single_view.html',{'user_profile':user_profile})
 
+@allowed_users(allowed_roles=['HumanResource'])         
 def user_profile_delete(request,id=0):
     if request.method =='POST':
         userprofile = UserProfile.objects.get(pk=id)

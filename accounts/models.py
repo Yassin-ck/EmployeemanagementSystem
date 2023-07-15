@@ -4,6 +4,7 @@ import random
 import secrets
 from datetime import datetime
 from django.utils  import timezone 
+from django.contrib.auth.models import Group
 
 # Create your models here.
 
@@ -26,7 +27,7 @@ class User(AbstractUser):
     department = models.CharField(max_length=50,choices=Department.choices)
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
     is_worker = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
@@ -34,15 +35,19 @@ class User(AbstractUser):
     
     
     
-    def save(self,*args,**kwargs):
+    
+    def save(self, *args, **kwargs):
         if self.is_superuser:
             self.role = self.base_role
-            # self.department =
-            return super().save(*args,**kwargs)
-            
+            super().save(*args, **kwargs)  # Save the user before adding to the group
+            hr_group = Group.objects.get(name='HumanResource')
+            self.groups.add(hr_group)
+            print(';hhhhh')
         else:
-            return super().save(*args,**kwargs)
-          
+            
+            super().save(*args, **kwargs)  
+        
+        
         
 class Code(models.Model):
     number = models.CharField(max_length=20,blank=True)

@@ -11,8 +11,12 @@ class Notice_board(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
     image = models.ImageField(upload_to='images/',blank=True)
-    created_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    
+    class Meta:
+        ordering = ['-updated_at','-created_at']
     
     def save(self,*args,**kwargs):
         super().save(*args,**kwargs)
@@ -38,8 +42,14 @@ class Department_notice(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
     image = models.ImageField(upload_to='department/',blank=True)
-    created_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
+    
+    class Meta:
+        ordering = ['-updated_at','-created_at']
+        
+        
     def __str__(self):
         return self.title
     
@@ -64,8 +74,16 @@ class LeaveApply(models.Model):
     end_date = models.DateField()
     reason = models.TextField()  
     approved_by_hr =models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='approved_leaves_hr',blank=True)
-    created_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+
+
+    class Meta:
+        ordering = ['-updated_at','-created_at']
+        
+        
+        
     def __str__(self) :
         return f"{self.user.username}'s Leave Request"
     
@@ -78,8 +96,11 @@ class TodayTasks(models.Model):
     department_notice_board = models.ForeignKey(Department_notice, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField()
-    created_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
+    class Meta:
+        ordering = ['-updated_at','-created_at']
     
     def __str__(self):
         return f'{self.user} Commented {self.comment}'
@@ -95,8 +116,12 @@ class Paycheque(models.Model):
     deductions = models.DecimalField(max_digits=10, decimal_places=2)
     net_pay = models.DecimalField(max_digits=10, decimal_places=2)
     incentives_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+    class Meta:
+        ordering = ['-updated_at','-created_at']
 
     def __str__ (self):
         return str(self.gross_salary)
@@ -117,6 +142,9 @@ class UserProfile(models.Model):
     alternative_contact_number = models.CharField(max_length=10)
     profile_picture = models.ImageField(upload_to="userprofile/")
     experience = models.CharField(max_length=255)
+    
+    
+    
     
     
     def __str__(self):

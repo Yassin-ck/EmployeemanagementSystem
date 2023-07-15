@@ -32,7 +32,7 @@ class UserForm(forms.ModelForm):
             'mobile':'Mobile Number',
             'username':'Employee-Code',
             'is_superuser':'Human Resource',
-            'is_staff' : 'Manager',
+            'is_manager' : 'Manager',
             'is_worker':'Worker',
        
         }

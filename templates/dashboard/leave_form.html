@@ -5,6 +5,11 @@
     {{form.as_p}}
     <button type="submit">submit</button>
  </form>
+ {% if request.user.is_authenticated and request.user.is_superuser  %}
+ 
 <a href="{% url 'leave_view' %}"> view</a>
+ {% else %}
+<a href="{% url 'leave_personal_view' id=user.id %}"> view</a>
+ {% endif %}
  
 {% endblock contents %}

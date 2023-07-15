@@ -18,8 +18,19 @@
                     <a href="{% url 'department_notice_view' %}">DepartmentNotice</a>
                     <a href="{% url 'leave_form' %}">Leave Form</a>
                     <a href="{% url 'today_task_form' %}">Today Task</a>
+                    {% if request.user.is_authenticated and request.user.is_superuser %}
                     <a href="{% url 'paycheque_form' %}">Pay Cheque</a>
+                
+                    {% else %}
+
+                    <a href="{% url 'paycheque_personal_view' id=user.id %}">View Paycheques</a>
+
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user.is_superuser %}                
                     <a href="{% url 'user_profile_view'  %}">User Profile</a>
+                    {% else %}
+                    <a href="{% url 'user_profile_single_view' request.user.userprofile.id %}">User Profile</a>
+                    {% endif %}
                     <a><i class="openbtn fa-solid fa-ellipsis-vertical pl-3 pr-3"  onclick="openNav()"></i></a>
                 </div>
             </div>

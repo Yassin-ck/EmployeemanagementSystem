@@ -67,6 +67,7 @@ class TodayTaskForm(forms.ModelForm):
 class PaychequeForm(forms.ModelForm):
     pay_period = forms.DateField(widget=DateInput)
     gross_salary = forms.CharField(max_length=20, required=True)
+    
 
     class Meta:
         model = Paycheque

@@ -15,8 +15,10 @@
             <img src="{{ MEDIA_URL }}{{ department_notice.image.url }}" alt="Image" class="img-fluid">
             {% endif %}
             <div class="mt-3">
+            {% if request.user.is_authenticated and request.user.is_manager %}     
               <a href="{% url 'department_notice_edit' department_notice.id %}" class="btn btn-primary">Edit</a>
               <a href="{% url 'department_notice_delete' department_notice.id %}" class="btn btn-danger">Delete</a>
+            {% endif %}
             </div>
           </div>
         </div>

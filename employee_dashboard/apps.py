@@ -3,7 +3,7 @@ from django.apps import AppConfig
 
 class DashboardConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'Dashboard'
+    name = 'employee_dashboard'
 
     def ready(self):
-        import Dashboard.signals
+        import employee_dashboard.signals

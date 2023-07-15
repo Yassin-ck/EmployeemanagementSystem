@@ -44,8 +44,11 @@
               <h6>Date Joined:</h6>
               <p>{{ user_profile.user.date_joined }}</p>
               <div class="text-end mt-3">
+              {% if request.user.is_authenticated and request.user.is_superuser %}
+              
             <a href="{% url 'user_profile_edit' user_profile.id %}" class="btn btn-primary">Edit</a>
             <a href="{% url 'user_profile_delete' user_profile.id %}" class="btn btn-danger">Delete</a>
+              {% endif %}
           </div>
             </div>
           </div>

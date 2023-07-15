@@ -5,8 +5,9 @@ from django.http import HttpResponse
 from django.contrib import messages
 import secrets
 import re
+from django.utils import timezone
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 # OTP Verification
@@ -20,14 +21,20 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 #Blocking user After 3 failed Login Attempt
 from BruteBuster.models import FailedAttempt
-from Dashboard.models import UserProfile
+from employee_dashboard.models import UserProfile
 # from django.utils  import timezone 
 
+# authentication
+from django.contrib.auth.models import Group
+from employeemanagmentsystem.decorators import unauthenticated_user,allowed_users
+
 # Create your views here.
-# @login_required(login_url='login')
+@login_required(login_url='login')
 def homePage(request):
     return render(request,'accounts/home.html')
 
+
+@allowed_users(allowed_roles=['HumanResource'])
 def Registration(request):
     if request.method == 'GET':
         form = UserForm()
@@ -39,6 +46,7 @@ def Registration(request):
             last_name = form.cleaned_data['last_name']
             mobile = form.cleaned_data['mobile']
             role = form.cleaned_data['role']
+            department = form.cleaned_data['department']
             email = form.cleaned_data['email']
             employeeCode = form.cleaned_data['username']
             print('hii')
@@ -71,11 +79,30 @@ def Registration(request):
                         })
                         to_email = email
                         try:
+                            print('fff')
                             send_email = EmailMessage(mail_subject, message, to=[to_email])
                             send_email.send()
+                            print('fff')
                             password = make_password(temporary_password)
                             user.password = password
+                            print('fff')
                             user.save()
+                            
+                            if user.role == User.Role.HR:
+                                user.is_superuser = True
+                                hr_group = Group.objects.get(name='HumanResource')
+                                print(hr_group)
+                                user.groups.add(hr_group) 
+                            elif user.role == User.Role.MANAGER:
+                                user.is_manager = True
+                                manager_group = Group.objects.get(name='manager')
+                                user.groups.add(manager_group)
+                            else:
+                                user.is_worker = True
+                                worker_group = Group.objects.get(name='worker')
+                                user.groups.add(worker_group)
+                            user.save()
+        
                             profile = UserProfile()
                             profile.user_id = user.id
                             profile.profile_picture = 'userprofile/default.profilepicture.jpg'
@@ -95,44 +122,49 @@ def Registration(request):
 
 
 
-@never_cache
+
+
+@unauthenticated_user
 def loginPage(request):
-    
     if request.method == 'POST':
-     
         form = LoginForm(request.POST)
         EmployeeCode = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request,username=EmployeeCode,password=password)
+        user = authenticate(request, username=EmployeeCode, password=password)
         
         if user is not None:
-            if user.is_superuser or user.last_login is not None:
-                request.session['pk']=user.pk
-                return redirect('twoFactorAuthentication')  
+            if user.last_login is None:
+                user.is_active = False
+                user.save()
+                # First login after registration, redirect to reset password
+                return redirect('passwordresetemail',id = user.id)
             else:
-                return redirect('passwordresetemail',id=user.id)
-            
+                user.is_active = False
+                user.save()
+                # Regular login, redirect to two-factor authentication
+                request.session['pk'] = user.pk
+                return redirect('twoFactorAuthentication')
 
         else:
-            form.add_error('username','')
-            form.add_error('password','')
-            
-            user = FailedAttempt.objects.get(username = EmployeeCode)
+            form.add_error('username', '')
+            form.add_error('password', '')
+
+            user = FailedAttempt.objects.get(username=EmployeeCode)
             user_blocked = user.blocked()
             if user_blocked:
-                messages.error(request,f"""Your Account Has Been Blocked...
-                               Try Again After Sometimes""")
+                messages.error(request, """Your Account Has Been Blocked...
+                                   Try Again After Sometimes""")
             else:
-                messages.error(request,f"""Incorrect Id or Password!!!  
-                  You tried {user.failures} Attempts""")
-           
+                messages.error(request, """Incorrect Id or Password!!!  
+                      You tried {user.failures} Attempts""")
+
     else:
         form = LoginForm()
-    
+
     context = {'form': form}
     return render(request, 'accounts/login.html', context)
 
-@never_cache
+
 
 def reset_password(request,id=0):
     if request.method == 'POST':
@@ -143,9 +175,8 @@ def reset_password(request,id=0):
             if password == Cpassword and len(password)<=6:
                 
                 user.set_password(password)
-          
+                user.is_active = True
                 user.save()
-                # if user.verify():
                 login(request,user)
                 return redirect('home')
                 
@@ -173,7 +204,8 @@ def verify(request,uidb64,token):
     else:
         messages.error(request,'Error occurred while Activating')
         return redirect ('login')
-     
+ 
+ 
 def EmialPassowrdreset(request,id=0):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -221,7 +253,7 @@ def TwoFactorAuthentication(request):
                 send_sms(code_user,user.mobile)    
                 messages.success(request,'We send you a OTP to the registerd Mobile Number')
             except:
-                messages.error(request,'Error ocuured while we sending the OTP to your Mobile Number!!! please Retry...')
+                messages.error(request,f'Error ocuured while we sending the OTP to your Mobile Number!!! please Retry...{code}')
                 
             print(code_user)           
         if form.is_valid():
@@ -231,14 +263,18 @@ def TwoFactorAuthentication(request):
             if str(code) == number:
                 # print(number)
                 code.save()
+                user.is_active =True
+                user.save()
                 login(request,user)                              
                 return redirect('home')
             else:
                 messages.error(request,'Invalid OTP number')
                 
     return render(request,'accounts/twofactor_auth.html',{'form':form})
-           
-def logout(request):
+          
+def logoutPage(request):
+    print(request.user)
+    # request.user.is_active = False
     logout(request)
-    return redirect('home')
+    return redirect('login')
     
