@@ -1,0 +1,58 @@
+{% extends "includes/sidebar.html" %}
+
+{% block contents %}
+<div class="container-lg">
+  <div class="row ">
+    <div class="col-md-8 offset-md-2">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h4 class="card-title">{{ user_profile.user.username }}</h4>
+          <div class="text-center">
+            <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle" style="width: 200px; height: 200px;">
+          </div>
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <h6>First Name:</h6>
+              <p>{{ user_profile.user.first_name }}</p>
+              <h6>Last Name:</h6>
+              <p>{{ user_profile.user.last_name }}</p>
+              <h6>Email:</h6>
+              <p>{{ user_profile.user.email }}</p>
+              <h6>Phone Number:</h6>
+              <p>{{ user_profile.user.mobile }}</p>
+              <h6>Role:</h6>
+              <p>{{ user_profile.user.role }}</p>
+              <h6>Department:</h6>
+              <p>{{ user_profile.user.department }}</p>
+              <h6>Income:</h6>
+              <p>{{ user_profile.income }}</p>
+              <h6>Experience:</h6>
+              <p>{{ user_profile.experience }}</p>
+            </div>
+            <div class="col-md-6">
+
+              <h6>Country:</h6>
+              <p>{{ user_profile.country }}</p>
+              <h6>City:</h6>
+              <p>{{ user_profile.city }}</p>
+              <h6>State:</h6>
+              <p>{{ user_profile.state }}</p>
+              <h6>Alternative Contact Number:</h6>
+              <p>{{ user_profile.alternative_contact_number }}</p>
+              <h6>Address Line 2:</h6>
+              <p>{{ user_profile.address2 }}</p>
+              <h6>Date Joined:</h6>
+              <p>{{ user_profile.user.date_joined }}</p>
+              <div class="text-end mt-3">
+            <a href="{% url 'user_profile_edit' user_profile.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'user_profile_delete' user_profile.id %}" class="btn btn-danger">Delete</a>
+          </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock contents %}

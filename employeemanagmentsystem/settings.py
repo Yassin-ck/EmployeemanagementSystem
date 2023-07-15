@@ -9,6 +9,10 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
+
+import logging
+
 from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -49,12 +53,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'Dashboard',
-    'crispy_forms',
-    'crispy_bootstrap5',
     'BruteBuster',
 ]
 
-CRISPY_TEMPLATE_PACK ='bootstrap5'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -174,3 +175,34 @@ EMAIL_USE_TLS = True
 
 ACCOUNT_SID = os.getenv('sid')
 AUTH_TOKEN = os.getenv('token')
+
+
+
+
+# ...
+
+# # Logging Configuration
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#         'file': {
+#             'class': 'logging.FileHandler',
+#             'filename': 'logs/debug.log',  # Specify the path to the log file
+#         },
+#     },
+#     'root': {
+#         'handlers': ['console', 'file'],
+#         'level': 'DEBUG',  # Set the desired logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+#     },
+#     'loggers': {
+#         '__name__': {
+#             'handlers': ['console', 'file'],
+#             'level': 'DEBUG',  # Set the desired logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+#             'propagate': True,
+#         },
+#     },
+# }

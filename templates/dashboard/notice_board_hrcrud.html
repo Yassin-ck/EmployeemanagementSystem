@@ -1,5 +1,4 @@
 {% extends "includes/sidebar.html" %}
-{% load crispy_forms_tags %}  <!-- Correct the name of the crispy_forms_tags module -->
 
 {% block contents %}
 <div class="container text-center">
@@ -8,7 +7,7 @@
             <div class="text-center">
                 <form action="" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {{ form|crispy }}
+                        {{ form.as_p }}
  <!-- Correct the name of the form object -->
                         <div>
                                 <input type="submit" value="submit" class="btn btn-warning">

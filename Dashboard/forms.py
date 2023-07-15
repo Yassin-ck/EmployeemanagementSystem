@@ -8,6 +8,7 @@ from .models import (
     UserProfile,
 )
 from PIL import Image
+import re
 
 
 class DateInput(forms.DateInput):
@@ -65,6 +66,7 @@ class TodayTaskForm(forms.ModelForm):
 
 class PaychequeForm(forms.ModelForm):
     pay_period = forms.DateField(widget=DateInput)
+    gross_salary = forms.CharField(max_length=20, required=True)
 
     class Meta:
         model = Paycheque
@@ -77,12 +79,50 @@ class PaychequeForm(forms.ModelForm):
             "incentives_bonus",
         )
 
+    def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['user'].required = False
+
 
 class UserProfileForm(forms.ModelForm):
     profile_picture = forms.ImageField(required=False, widget=forms.FileInput)
-    # ...
 
     class Meta:
         model = UserProfile
         fields = "__all__"
-        
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["user"].required = False
+
+    def clean_alternative_number(self):
+        alternative_number = self.cleaned_data["alternative_number"]
+        if not re.match(r"^\+[0-9]+$", alternative_number):
+            raise forms.ValidationError(
+                'Alternative number should start with "+" and contain only digits.'
+            )
+        return alternative_number
+
+    def clean_city(self):
+        city = self.cleaned_data["city"]
+        if not re.match(r"^[a-zA-Z]+$", city):
+            raise forms.ValidationError(
+                "City should only contain alphabetic characters."
+            )
+        return city
+
+    def clean_state(self):
+        state = self.cleaned_data["state"]
+        if not re.match(r"^[a-zA-Z]+$", state):
+            raise forms.ValidationError(
+                "State should only contain alphabetic characters."
+            )
+        return state
+
+    def clean_country(self):
+        country = self.cleaned_data["country"]
+        if not re.match(r"^[a-zA-Z]+$", country):
+            raise forms.ValidationError(
+                "Country should only contain alphabetic characters."
+            )
+        return country

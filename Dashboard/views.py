@@ -7,7 +7,7 @@ from django.contrib import messages
 from accounts.models import User
 from accounts.forms import UserForm
 from PIL import Image
-
+from django.shortcuts import get_object_or_404
 # Create your views here.
 # @login_required(login_url='login')
 def Notice_board_view(request):
@@ -184,7 +184,7 @@ def Paycheque_form(request,id=0):
         if id == 0:
             form = PaychequeForm()
         else:
-            cheques = paycheque.objects.get(pk=id)
+            cheques = Paycheque.objects.get(pk=id)
             form = PaychequeForm(instance=cheques)
         return render (request,'dashboard/paycheque_form.html',{'form':form})
             
@@ -203,95 +203,86 @@ def Paycheque_delete(request,id=0):
 
 
 
-def user_profile_form(request,id=0):
-    if request.method == 'POST': 
-        userprofile = UserProfile.objects.get(pk=id)
-        userprofile_user = User.objects.get(email=userprofile.user.email)
-        userform = UserForm(request.POST,instance=userprofile_user)
-        profileform = UserProfileForm(request.POST,request.FILES,instance=userprofile)
-        if userform.is_valid() and profileform.is_valid():
-            # profile_picture = profileform.cleaned_data['profile_picture']
-            profileform.save()
-            userform.save()
-            # if profile_form.profile_picture:
-                # profile_picture = profileform.cleaned_data.get('profile_picture')  
-                # if profile_picture:
-                #     profile_form.profile_picture = profile_picture
-                # # profile_form.profile_picture = profile_picture
-                # print(profile_form.profile_picture)
-                #     # img = Image.open(profile_picture)
-                #     # if img.height > 85 or img.width > 85:
-                #     #     output_size = (85,85)
-                #     #     img.thumbnail(output_size)
-                # # try:    #     img.save(profile_picture)  
-                # # try:
-                # profile_form.save()
-                # user_form.save()                      
-            # except AttributeError:
-                
-            #     return HttpResponse('user_profile_view')
-                 
-            return redirect('user_profile_view')
-            # except AttributeError:
-            #     return HttpResponse(f'something {AttributeError} happened')
-        else:
-            print(userform.errors)
-            print(profileform.errors)
-            return HttpResponse('jjj')
-    else:
-        userprofile = UserProfile.objects.get(pk=id)
-        userprofile_user = User.objects.get(email=userprofile.user.email)
-        profileform = UserProfileForm(instance=userprofile)
-        userform = UserForm(instance=userprofile_user)
-        return render(request,'dashboard/user_profile_form.html',{'userform':userform,'profileform':profileform})
-
-
 def user_profile_form(request, id=0):
     if request.method == 'POST':
-        userprofile = UserProfile.objects.get(pk=id)
-        userprofile_user = User.objects.get(email=userprofile.user.email)
+        userprofile = get_object_or_404(UserProfile, pk=id)
+        userprofile_user = userprofile.user
         userform = UserForm(request.POST, instance=userprofile_user)
         profileform = UserProfileForm(request.POST, request.FILES, instance=userprofile)
         if userform.is_valid() and profileform.is_valid():
-            # uploaded_file = request.FILES['profile_picture']
-            # print(uploaded_file)
-            # if uploaded_file:
-            #     print(uploaded_file)
-                
-            user_instance = userform.save(commit=False)
-            profile_instance = profileform.save(commit=False)
-            user_instance.save()
-            profile_instance.user = user_instance
-            # profile_instance.profile_picture = uploaded_file                
-            # print('kjh',profile_instance.profile_picture)
-            profile_instance.save()
-            # print('jhgf',profile_instance.profile_picture)
-            # print(uploaded_file)
-            return redirect('user_profile_view')
-            # else:
-            #     user_instance = userform.save(commit=False)
-            #     profile_instance = profileform.save(commit=False)
-            #     user_instance.save()
-            #     profile_instance.user = user_instance
-            #     profile_instance.profile_picture = None     
-                
-            #     profileform.save()
-            #     return redirect('home')
+            empcode = userform.cleaned_data['username']
+            if len(empcode) < 5:
+                userform.add_error('username', 'Username should be at least 5 characters long.')
+            if not userform.errors and not profileform.errors :
+                   
+                user_instance = userform.save(commit=False)
+                profile_instance = profileform.save(commit=False)
+                user_instance.save()
+                profile_instance.user = user_instance
+                user_instance.save()
+                profile_instance.save()
+                return redirect('user_profile_single_view',id)
+            else:
+                print(userform.errors)
+                print(profileform.errors)
+                return render(request, 'dashboard/user_profile_form.html', {'userform': userform, 'profileform': profileform})
         else:
             print(userform.errors)
             print(profileform.errors)
-            return redirect('user_profile_edit',id)
+            return render(request, 'dashboard/user_profile_form.html', {'userform': userform, 'profileform': profileform})
     else:
-        userprofile = UserProfile.objects.get(pk=id)
-        userprofile_user = User.objects.get(email=userprofile.user.email)
+        userprofile = get_object_or_404(UserProfile, pk=id)
+        userprofile_user = userprofile.user
         profileform = UserProfileForm(instance=userprofile)
         userform = UserForm(instance=userprofile_user)
         return render(request, 'dashboard/user_profile_form.html', {'userform': userform, 'profileform': profileform})
 
+
+# def user_profile_form(request, id=0):
+#     if request.method == 'POST':
+#         userprofile = UserProfile.objects.get(pk=id)
+#         userprofile_user = User.objects.get(email=userprofile.user.email)
+#         userform = UserForm(request.POST, instance=userprofile_user)
+#         profileform = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+#         if userform.is_valid() and profileform.is_valid():
+#             # uploaded_file = request.FILES['profile_picture']
+#             # print(uploaded_file)
+#             # if uploaded_file:
+#             #     print(uploaded_file)
+             
+#             # profile_instance.profile_picture = uploaded_file                
+#             # print('kjh',profile_instance.profile_picture)
+#             # print('jhgf',profile_instance.profile_picture)
+#             # print(uploaded_file)
+#             return redirect('user_profile_single_view',id)
+#             # else:
+#             #     user_instance = userform.save(commit=False)
+#             #     profile_instance = profileform.save(commit=False)
+#             #     user_instance.save()
+#             #     profile_instance.user = user_instance
+#             #     profile_instance.profile_picture = None     
+                
+#             #     profileform.save()
+#             #     return redirect('home')
+#         else:
+#             print(userform.errors)
+#             print(profileform.errors)
+#             return redirect('user_profile_edit',id)
+#     else:
+#         userprofile = UserProfile.objects.get(pk=id)
+#         userprofile_user = User.objects.get(email=userprofile.user.email)
+#         profileform = UserProfileForm(instance=userprofile)
+#         userform = UserForm(instance=userprofile_user)
+#         return render(request, 'dashboard/user_profile_form.html', {'userform': userform, 'profileform': profileform})
+
   
-def user_profile_view(request):
-    user_profiles = UserProfile.objects.all()
-    return render (request,'dashboard/user_profile_view.html',{'user_profiles':user_profiles})
+def user_profile_view(request,id=0):
+    if id==0:
+        user_profiles = UserProfile.objects.all()
+        return render (request,'dashboard/user_profile_view.html',{'user_profiles':user_profiles})
+    else:
+        user_profile = UserProfile.objects.get(pk=id)
+        return render (request,'dashboard/user_profile_single_view.html',{'user_profile':user_profile})
 
 def user_profile_delete(request,id=0):
     if request.method =='POST':

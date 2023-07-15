@@ -24,6 +24,7 @@ urlpatterns = [
     path('paycheque_edit/<int:id>/',views.Paycheque_form,name='paycheque_edit'),
     path('paycheque_delete/<int:id>/',views.Paycheque_delete,name='paycheque_delete'),
     path('user_profile_view/',views.user_profile_view,name='user_profile_view'),
+    path('user_profile_single_view/<int:id>',views.user_profile_view,name='user_profile_single_view'),
     path('user_profile_edit/<int:id>/',views.user_profile_form,name='user_profile_edit'),
     path('user_profile_delete/<int:id>/',views.user_profile_delete,name='user_profile_delete'),   
 ] 

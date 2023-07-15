@@ -1,32 +1,30 @@
-<!-- my_template.html -->
 {% extends "includes/sidebar.html" %}
 {% block contents %}
-
-<form action="{% url 'dashboard' %}" method="GET">
-<div className=" d-flex flex-column container ">
-  <div className="row gap-5">
-
-        
+<div class="container">
+  <div class="row gap-5">
+    <div class="col-md-12">
+      <form action="{% url 'dashboard' %}" method="GET">
         {% for notice in notice_board_list %}
-       
-                        <h3 class="card-title">{{notice.title}}</h3>
-                        <h5 class="card-title">{{notice.subject}}</h5>
-                        <p class="card-text">{{notice.content}}</p>
-                        {% if notice.image %}
-                        <img src="{{ MEDIA_URL }}{{ notice.image.url }}" alt="Image">
-                        
-                        {% endif %}
-                        <a href="{% url 'notice_hr_edit' notice.id %}" class="btn btn-primary">Edit</a>
-                        <a href="{% url 'notice_hr_delete' notice.id %}" class="btn btn-danger">Delete</a>
-                
+        <div class="card mb-4">
+          <div class="card-body">
+            <h3 class="card-title">{{ notice.title }}</h3>
+            <h5 class="card-title">{{ notice.subject }}</h5>
+            <p class="card-text">{{ notice.content }}</p>
+            {% if notice.image %}
+            <img src="{{ MEDIA_URL }}{{ notice.image.url }}" alt="Image" class="img-fluid">
+            {% endif %}
+            <div class="mt-3">
+              <a href="{% url 'notice_hr_edit' notice.id %}" class="btn btn-primary">Edit</a>
+              <a href="{% url 'notice_hr_delete' notice.id %}" class="btn btn-danger">Delete</a>
+            </div>
+          </div>
+        </div>
         {% endfor %}
-        
-        <div>
+        <div class="text-center">
+          <a href="{% url 'notice_hr_create' %}" class="btn btn-info">Add Info</a>
         </div>
-        </div>
-        </div>
-                <a href="{% url 'notice_hr_create' %}" class="btn btn-info">Add Info</a>
-        
-
-</form>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock contents %}

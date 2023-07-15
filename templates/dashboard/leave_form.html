@@ -1,9 +1,8 @@
 {% extends "includes/sidebar.html" %}
-{% load crispy_forms_tags %}
 {% block contents %}
  <form action="" method="POST">
 {% csrf_token %}
-    {{form|crispy}}
+    {{form.as_p}}
     <button type="submit">submit</button>
  </form>
 <a href="{% url 'leave_view' %}"> view</a>

@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 import random
 import secrets
 from datetime import datetime
+from django.utils  import timezone 
 
 # Create your models here.
 
@@ -23,9 +24,10 @@ class User(AbstractUser):
     mobile = models.CharField(default=None,max_length=13)
     role = models.CharField(max_length=50,choices=Role.choices)
     department = models.CharField(max_length=50,choices=Department.choices)
-    date_joined = models.DateField(default=datetime.now())
-    is_active = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_worker = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email','department','mobile']

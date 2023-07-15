@@ -4,6 +4,7 @@ from PIL import Image
 from datetime import datetime
 from django.shortcuts import HttpResponse
 from django.core.files.storage import default_storage
+from django.utils.timezone import now
 # Create your models here.
 class Notice_board(models.Model):
     title = models.CharField(max_length=150)
@@ -84,26 +85,23 @@ class TodayTasks(models.Model):
         return f'{self.user} Commented {self.comment}'
 
 class Paycheque(models.Model):
-    employer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='issued_paycheques',
-    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='paycheques',
     )
     pay_period = models.DateField()
-    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_salary = models.CharField(max_length=20)
     deductions = models.DecimalField(max_digits=10, decimal_places=2)
     net_pay = models.DecimalField(max_digits=10, decimal_places=2)
     incentives_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    created_at = models.DateTimeField(default=datetime.now())
-    updated_at = models.DateTimeField(default=datetime.now())
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f'Paycheque for {self.user} on {self.pay_period}'
+    def __str__ (self):
+        return str(self.gross_salary)
+
+
 
 
 

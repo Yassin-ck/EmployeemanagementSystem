@@ -21,6 +21,7 @@ from django.contrib.auth.tokens import default_token_generator
 #Blocking user After 3 failed Login Attempt
 from BruteBuster.models import FailedAttempt
 from Dashboard.models import UserProfile
+# from django.utils  import timezone 
 
 # Create your views here.
 # @login_required(login_url='login')
@@ -32,6 +33,7 @@ def Registration(request):
         form = UserForm()
     else:
         form = UserForm(request.POST)
+        print('hii4')
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
@@ -39,21 +41,25 @@ def Registration(request):
             role = form.cleaned_data['role']
             email = form.cleaned_data['email']
             employeeCode = form.cleaned_data['username']
-
+            print('hii')
             try:
+                print('hii1')
                 User.objects.get(email=email)
                 form.add_error('email', 'User with the same email already exists')
             except User.DoesNotExist:
                 try:
+                    print('hii2')
                     User.objects.get(username=employeeCode.upper())
                     messages.error(request, 'EmployeeCode already in use')
                 except User.DoesNotExist:
+                    print('hii3')
                     if len(mobile) <= 12 and re.match(r'^\+\d+$', mobile):
                         form.add_error('mobile', 'Please enter a valid mobile number with CountryCode (e.g., +1234567890)')
                         print('kk')
                     else:
                         print('jhgf')
                         user = form.save(commit=False)
+                        # user.date_joined = timezone.now()
                         user.username = employeeCode.upper()
                         temporary_password = secrets.token_urlsafe(10)
                         current_site = get_current_site(request)
@@ -67,20 +73,20 @@ def Registration(request):
                         try:
                             send_email = EmailMessage(mail_subject, message, to=[to_email])
                             send_email.send()
+                            password = make_password(temporary_password)
+                            user.password = password
+                            user.save()
+                            profile = UserProfile()
+                            profile.user_id = user.id
+                            profile.profile_picture = 'userprofile/default.profilepicture.jpg'
+                            profile.save()
+                            return redirect('emailpassid')
                         except:
                             messages.error(request, 'Email not sent')
 
-                        password = make_password(temporary_password)
-                        user.password = password
-                        user.save()
                         
-                        
-                        profile = UserProfile()
-                        profile.user_id = user.id
-                        profile.profile_picture = 'userprofile/default.profilepicture.jpg'
-                        profile.save()
-                        return redirect('emailpassid')
-
+        else:
+            print(form.errors)
     context = {
         'form': form,
     }
@@ -110,6 +116,7 @@ def loginPage(request):
         else:
             form.add_error('username','')
             form.add_error('password','')
+            
             user = FailedAttempt.objects.get(username = EmployeeCode)
             user_blocked = user.blocked()
             if user_blocked:

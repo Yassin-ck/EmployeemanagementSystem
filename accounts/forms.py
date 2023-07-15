@@ -1,15 +1,19 @@
 from django import forms
 from django.forms import PasswordInput
 from .models import User,Code
+import re
 
 class UserForm(forms.ModelForm):
     mobile = forms.CharField(max_length=13)
+    is_superuser = forms.CheckboxInput()
+    is_staff = forms.CheckboxInput()
+    is_worker = forms.CheckboxInput()
+
     class Meta:
         model = User
         exclude = ['password']
         
-        # fields = ('first_name','last_name','email','role','department','mobile','country_code','username')
-        fields = '__all__'
+        fields = ('first_name','last_name','email','role','department','mobile','username')
                   
         error_messages = {
             'username':{
@@ -26,9 +30,30 @@ class UserForm(forms.ModelForm):
             'role':'Role',
             'department':'Department',
             'mobile':'Mobile Number',
-            'username':'Employee-Code'
-            
+            'username':'Employee-Code',
+            'is_superuser':'Human Resource',
+            'is_staff' : 'Manager',
+            'is_worker':'Worker',
+       
         }
+        def clean_first_name(self):
+            first_name = self.cleaned_data['first_name']
+            if not re.match(r'^[a-zA-Z]+$', first_name):
+                raise forms.ValidationError('First name should only contain alphabetic characters.')
+            return first_name
+
+        def clean_last_name(self):
+            last_name = self.cleaned_data['last_name']
+            if not re.match(r'^[a-zA-Z]+$', last_name):
+                raise forms.ValidationError('Last name should only contain alphabetic characters.')
+            return last_name
+        
+        def clean_mobile(self):
+            mobile = self.cleaned_data['mobile']
+            if not re.match(r'^\+[0-9]+$', mobile):
+                raise forms.ValidationError('Mobile number should start with "+" and contain only digits.')
+            return mobile
+
         
     def __init__(self, *args, **kwargs):
         
@@ -41,6 +66,7 @@ class UserForm(forms.ModelForm):
   
             
 class LoginForm(forms.ModelForm):
+    username = forms.CharField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
 
 

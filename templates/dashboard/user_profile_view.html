@@ -4,30 +4,11 @@
 <div className=" d-flex flex-column container ">
   <div className="row gap-5">
 
-   {% for user_profile in user_profiles %}
+   {% for users in user_profiles %}
    <div class="container">
      
-     <h4>{{user_profile.user.username}}</h4>
-     <h4>{{user_profile.user.is_active}}</h4>
-     <h4>{{user_profile.user.first_name}}</h4>
-     <h4>{{user_profile.user.last_name}}</h4>
-     <h4>{{user_profile.user.email}}</h4>
-     <h4>{{user_profile.user.country_code}}</h4>
-     <h4>{{user_profile.user.mobile}}</h4>
-     <h4>{{user_profile.user.role}}</h4>
-     <h4>{{user_profile.user.department}}</h4>
-     <h4>{{user_profile.income}}</h4>
-      <h4>{{user_profile.address2}}</h4>
-     <h4>{{user_profile.city}}</h4>
-     <h4>{{user_profile.state}}</h4>
-     <h4>{{user_profile.country}}</h4>
-           <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
-
-     <h4>{{user_profile.alternative_contact_number}}</h4>
-     <h4>{{user_profile.experience}}</h4>
-     <h4>{{user_profile.user.date_joined}}</h4>
-     <a href="{% url 'user_profile_edit' user_profile.id %}">edit</a>
-     <a href="{% url 'user_profile_delete' user_profile.id %}">delete</a>
+     <h4>{{users}}</h4>
+     <a href="{% url 'user_profile_single_view' users.id %}">Open</a>
     </div>
   </div>
   {% endfor %}
