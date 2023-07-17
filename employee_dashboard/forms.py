@@ -66,7 +66,7 @@ class TodayTaskForm(forms.ModelForm):
 
 class PaychequeForm(forms.ModelForm):
     pay_period = forms.DateField(widget=DateInput)
-    gross_salary = forms.CharField(max_length=20, required=True)
+    gross_salary = forms.CharField(max_length=20, required=False)
     
 
     class Meta:
@@ -83,10 +83,12 @@ class PaychequeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.fields['user'].required = False
+            self.fields['gross_salary'].required = False
 
 
 class UserProfileForm(forms.ModelForm):
     profile_picture = forms.ImageField(required=False, widget=forms.FileInput)
+    income = forms.FloatField()
 
     class Meta:
         model = UserProfile

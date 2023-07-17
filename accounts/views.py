@@ -86,17 +86,18 @@ def Registration(request):
                             password = make_password(temporary_password)
                             user.password = password
                             print('fff')
-                            user.save()
-                            
-                            if user.role == User.Role.HR:
+                            user.save()  
+                            if user.role == User.Role.HR:    
                                 user.is_superuser = True
                                 hr_group = Group.objects.get(name='HumanResource')
                                 print(hr_group)
                                 user.groups.add(hr_group) 
                             elif user.role == User.Role.MANAGER:
                                 user.is_manager = True
+                                
                                 manager_group = Group.objects.get(name='manager')
                                 user.groups.add(manager_group)
+                                print('fghhjbs')
                             else:
                                 user.is_worker = True
                                 worker_group = Group.objects.get(name='worker')
@@ -104,13 +105,17 @@ def Registration(request):
                             user.save()
         
                             profile = UserProfile()
+                            print('jhg')
                             profile.user_id = user.id
                             profile.profile_picture = 'userprofile/default.profilepicture.jpg'
+                            print('jjj')
                             profile.save()
+                            print('oihghgjkh')
                             return redirect('emailpassid')
+
                         except:
                             messages.error(request, 'Email not sent')
-
+                       
                         
         else:
             print(form.errors)

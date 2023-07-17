@@ -1,1 +1,1 @@
-default_app_config = 'employee_dashboard.apps.employee_dashboardConfig'
+default_app_config = 'employee_dashboard.apps.DashboardConfig'

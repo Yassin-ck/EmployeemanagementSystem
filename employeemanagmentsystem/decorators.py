@@ -1,5 +1,4 @@
 from django.shortcuts import redirect
-from django.http import HttpResponse
 
 
 def unauthenticated_user(view_func):
@@ -28,10 +27,19 @@ def allowed_users(allowed_roles=[]):
             if group in allowed_roles:
                 return view_func( request,*args,**kwargs)
             else:
-                return HttpResponse('Get Out')
+                return redirect('home')
                      
         return wrappers
     return decorators
 
 
 
+
+
+def dashboard_authentication(view_func):
+    def wrappers(request,*args,**kwargs):
+        if request.user.is_authenticated:
+            return view_func(request,*args,**kwargs)
+        else:
+            return redirect('login')
+    return wrappers

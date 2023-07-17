@@ -24,7 +24,9 @@
         </div>
         {% endfor %}
         <div class="text-center">
+            {% if request.user.is_authenticated and request.user.is_manager %}     
           <a href="{% url 'department_notice_create' %}" class="btn btn-info">Add Info</a>
+            {% endif %}
         </div>
       </form>
     </div>

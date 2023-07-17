@@ -123,7 +123,7 @@ class Paycheque(models.Model):
     class Meta:
         ordering = ['-updated_at','-created_at']
 
-    def __str__ (self):
+    def __str__ (self): 
         return str(self.gross_salary)
 
 
@@ -133,7 +133,7 @@ class Paycheque(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    income = models.FloatField()
+    income = models.FloatField(null=True)
     address1 = models.TextField()
     address2 = models.TextField()
     city = models.CharField(max_length=20, unique=False)

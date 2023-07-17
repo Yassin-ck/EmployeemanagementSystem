@@ -8,16 +8,14 @@ from accounts.models import User
 from accounts.forms import UserForm
 from PIL import Image
 from django.shortcuts import get_object_or_404
-
-from employeemanagmentsystem.decorators import unauthenticated_user,allowed_users
+from employeemanagmentsystem.decorators import allowed_users,dashboard_authentication
 
 # Create your views here.
-# @login_required(login_url='login')
+@dashboard_authentication
 def Notice_board_view(request):
     if request.method == 'GET':
         notice_board_list = Notice_board.objects.all()
         return render(request,'dashboard/notice_board.html',{'notice_board_list':notice_board_list}) 
-# @login_required(login_url='login')
 @allowed_users(allowed_roles=['HumanResource'])
 def Notice_board_hr_crud(request, id=0):
     if request.method == 'GET':
@@ -44,7 +42,6 @@ def Notice_board_hr_crud(request, id=0):
         # messages.error(request,'hell')  
         return HttpResponse('image size is too big')
     
-    
 @allowed_users(allowed_roles=['HumanResources'])         
 def Notice_board_hr_delete(request,id):
 
@@ -57,7 +54,9 @@ def Notice_board_hr_delete(request,id):
         return redirect('dashboard')       
         
     return render(request,'dashboard/Delete.html')
+    
                 
+@dashboard_authentication
 def Department_notice_view(request):
     if request.method == 'GET':
         department_notices = Department_notice.objects.all()
@@ -97,8 +96,8 @@ def Department_notice_delete(request,id=0):
         return render(request,'dashboard/Delete.html')
     
 
-def Leave_user_form(request,id=0):
-    
+@dashboard_authentication
+def Leave_user_form(request,id=0):    
     if request.method == 'POST':
         if id == 0:
             form = LeaveForm(request.POST)            
@@ -120,6 +119,7 @@ def Leave_user_form(request,id=0):
         return render(request,'dashboard/leave_form.html',{'form':form})
         
 
+@dashboard_authentication
 def Leave_user_view(request,id=0):
     if id == 0:
         leaves = LeaveApply.objects.all()
@@ -139,6 +139,7 @@ def Leave_user_delete(request,id=0):
 
 
 
+@dashboard_authentication
 def Today_task_form(request,id=0):
     if request.method == 'POST':
         if id==0:
@@ -161,6 +162,7 @@ def Today_task_form(request,id=0):
             form = TodayTaskForm(instance=comments)
         return render(request,'dashboard/today_task_form.html',{'form':form})
     
+@dashboard_authentication
 def Today_task_view(request):
     comments = TodayTasks.objects.all()
     return render(request,'dashboard/today_task_view.html',{'comments':comments})
@@ -202,6 +204,7 @@ def Paycheque_form(request,id=0):
             form = PaychequeForm(instance=cheques)
         return render (request,'dashboard/paycheque_form.html',{'form':form})
             
+@dashboard_authentication
 def Paycheque_view(request,id=0):
     if id == 0: 
         cheques = Paycheque.objects.all()
@@ -210,7 +213,6 @@ def Paycheque_view(request,id=0):
         cheques = Paycheque.objects.filter(user=user) 
     return render (request,'dashboard/paycheque_view.html',{'cheques':cheques})
 
-@allowed_users(allowed_roles=['HumanResource'])         
 def Paycheque_delete(request,id=0):
     if request.method == 'POST':
         cheques = Paycheque.objects.get(pk=id)
@@ -258,44 +260,8 @@ def user_profile_form(request, id=0):
         return render(request, 'dashboard/user_profile_form.html', {'userform': userform, 'profileform': profileform})
 
 
-# def user_profile_form(request, id=0):
-#     if request.method == 'POST':
-#         userprofile = UserProfile.objects.get(pk=id)
-#         userprofile_user = User.objects.get(email=userprofile.user.email)
-#         userform = UserForm(request.POST, instance=userprofile_user)
-#         profileform = UserProfileForm(request.POST, request.FILES, instance=userprofile)
-#         if userform.is_valid() and profileform.is_valid():
-#             # uploaded_file = request.FILES['profile_picture']
-#             # print(uploaded_file)
-#             # if uploaded_file:
-#             #     print(uploaded_file)
-             
-#             # profile_instance.profile_picture = uploaded_file                
-#             # print('kjh',profile_instance.profile_picture)
-#             # print('jhgf',profile_instance.profile_picture)
-#             # print(uploaded_file)
-#             return redirect('user_profile_single_view',id)
-#             # else:
-#             #     user_instance = userform.save(commit=False)
-#             #     profile_instance = profileform.save(commit=False)
-#             #     user_instance.save()
-#             #     profile_instance.user = user_instance
-#             #     profile_instance.profile_picture = None     
-                
-#             #     profileform.save()
-#             #     return redirect('home')
-#         else:
-#             print(userform.errors)
-#             print(profileform.errors)
-#             return redirect('user_profile_edit',id)
-#     else:
-#         userprofile = UserProfile.objects.get(pk=id)
-#         userprofile_user = User.objects.get(email=userprofile.user.email)
-#         profileform = UserProfileForm(instance=userprofile)
-#         userform = UserForm(instance=userprofile_user)
-#         return render(request, 'dashboard/user_profile_form.html', {'userform': userform, 'profileform': profileform})
-
   
+@dashboard_authentication
 def user_profile_view(request,id=0):
     if id==0:
         user_profiles = UserProfile.objects.all()
