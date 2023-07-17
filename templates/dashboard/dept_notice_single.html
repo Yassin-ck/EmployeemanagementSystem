@@ -1,0 +1,31 @@
+{% extends "includes/sidebar.html" %}
+
+{% block contents %}
+<div class="card mb-3">
+    {% if notices.image %}
+    <img src="{{ MEDIA_URL }}{{ notices.image.url }}" class="card-img-top" alt="...">
+    {% endif %}
+
+    <div class="card-body">
+        <h5 class="card-title">{{ notices.title }}</h5>
+        <p class="card-text">{{ notices.subject }}</p>
+        <p class="card-text"><small class="text-body-secondary">{{ notices.content }}</small></p>
+
+        <div>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <input type="text" name="comment">
+                <input type="submit" value="Submit" class="btn-submit">
+            </form>
+            
+            {% for comment in comments_dept %}
+            <div class="d-flex justify-content-between">
+                <p>{{ comment.user.first_name }}</p>
+                <p>{{ comment.comment }}</p>
+                <p>{{ comment.created_at|timesince }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock contents %}

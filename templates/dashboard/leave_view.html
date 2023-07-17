@@ -1,28 +1,47 @@
 {% extends "includes/sidebar.html" %}
+
 {% block contents %}
-  
 
 {% for leave in leaves %}
-
-
-<div class="card mb-3 fixed" style="max-width: 540px;">
+{% if request.user == leave.user and 'leave_view' not in request.path %} 
+<div class="card mb-3 fixed {% if leave.status == 'Pending' %}bg-warning{% elif leave.status == 'Approved' %}bg-success{% else %}bg-danger{% endif %}">
+  {% else %}
+ <div class="card mb-3 fixed">
+{% endif %}
   <div class="row g-0">
-      <div class="col-md-4">
+    <div class="col-md-4">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="carDSd-title">EMP-CODE: {{ leave.user.username }}</h5>
+        <p class="card-text">from: {{ leave.start_date }}</p>
+        <p class="card-text">to: {{ leave.end_date }}</p>
+        <p class="card-text">Reason: {{ leave.reason }}</p>
+        <p class="carDSd-title"><strong>{{ leave.user.first_name }} {{ leave.user.last_name }}</strong></p>
+        <small class="text-body-secondary">{{ leave.created_at|timesince }} ago</small>
+        {% if request.user == leave.user %}
+          
+        <p class="card-text">
+          Request <strong>{{ leave.status }}</strong>
+        </p>
+        
+        {% endif %}
       </div>
-      <div class="col-md-8">
-        <div class="card-body">
-          <h5 class="card-title">{{leave.start_date}}</h5>
-          <p class="card-text">{{leave.end_date}}</p>
-          <p class="card-text">{{leave.reason}}<small class="text-body-secondary">Last updated 3 mins ago</small></p>
-        </div>
-      </div>
+      {% if request.user.is_superuser and 'leave_view' in request.path %}
+        <a href="{% url 'leave_approval' leave.id %}" class="btn btn-secondary">Approve</a>
+        <a href="{% url 'leave_rejection' leave.id %}" class="btn btn-dark">Reject</a>
+      {% else %}
+        <a href="{% url 'leave_form_edit' leave.id %}" class="btn btn-secondary">Edit</a>
+        <a href="{% url 'leave_form_delete' leave.id %}" class="btn btn-dark">Delete</a>
+      {% endif %}
     </div>
   </div>
-  <div>
-    <a href="{% url 'leave_form_edit' leave.id %}" class="btn btn-success">Edit</a>
-    <a href="{% url 'leave_form_delete' leave.id %}" class="btn btn-success">Delete</a>
-  </div>
-  {% endfor %}
-  {% endblock contents %}
+</div>
+{% endfor %}
+
+{% if request.user.is_authenticated and request.user.is_superuser and 'leave_personal_view' not in request.path %}
+<a href="{% url 'leave_form' %}" class="btn btn-warning">Leave Form</a>
+{% endif %}
 
 
+{% endblock contents %}

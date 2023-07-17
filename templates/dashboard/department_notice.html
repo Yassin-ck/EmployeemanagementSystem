@@ -6,8 +6,10 @@
     <div class="col-md-12">
       <form action="{% url 'department_notice_view' %}" method="GET">
         {% for department_notice in department_notices %}
-        <div class="card mb-4">
-          <div class="card-body">
+        <a href="{% url 'department_notice_single_view' department_notice.id %}">
+
+          <div class="card mb-4">
+            <div class="card-body">
             <h3 class="card-title">{{ department_notice.title }}</h3>
             <h5 class="card-title">{{ department_notice.subject }}</h5>
             <p class="card-text">{{ department_notice.content }}</p>
@@ -15,17 +17,18 @@
             <img src="{{ MEDIA_URL }}{{ department_notice.image.url }}" alt="Image" class="img-fluid">
             {% endif %}
             <div class="mt-3">
-            {% if request.user.is_authenticated and request.user.is_manager %}     
-              <a href="{% url 'department_notice_edit' department_notice.id %}" class="btn btn-primary">Edit</a>
-              <a href="{% url 'department_notice_delete' department_notice.id %}" class="btn btn-danger">Delete</a>
-            {% endif %}
+              {% if request.user.is_authenticated and request.user.is_manager %}     
+              <a href="{% url 'department_notice_edit' department_notice.id %}" class="btn ">Edit</a>
+              <a href="{% url 'department_notice_delete' department_notice.id %}" class="btn ">Delete</a>
+              {% endif %}
             </div>
           </div>
         </div>
+      </a>
         {% endfor %}
         <div class="text-center">
             {% if request.user.is_authenticated and request.user.is_manager %}     
-          <a href="{% url 'department_notice_create' %}" class="btn btn-info">Add Info</a>
+          <a href="{% url 'department_notice_create' %}" class="btn ">Add</a>
             {% endif %}
         </div>
       </form>

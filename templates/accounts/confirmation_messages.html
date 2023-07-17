@@ -13,9 +13,9 @@
               <div class="alert-light text-success m-4"><strong>{{verify}}</strong></div>
             {% endfor %}
             {% if 'emailpassid/' in request.path %}
-            <a href="{% url 'register' %}" class="btn btn-warning mt-5">Add New User</a>
-            {% elif 'paycheque_form' in request.path %}
-            <a href="{% url 'paycheque_form' %}" class="btn btn-warning mt-5">Paycheque</a>
+            <a href="{% url 'register' %}" class="btn mt-5 btn-success">Add New User</a>
+            {% elif 'paycheque_form' or 'paycheque_edit' in request.path %}
+            <a href="{% url 'paycheque_form' %}" class="btn  mt-5">Paycheque</a>
 
             {% endif %}
         </div>

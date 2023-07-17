@@ -5,10 +5,12 @@
 
         <h1 class="text-info">Home</h1>
        
+      <h3>Welcome {{user.first_name}} {{user.last_name}}</h3>
+      <h3> {{user.role}}</h3>
     </div>
-    <a href="{% url 'logout' %}"  class="btn btn-danger">Logout</a>
+    <a href="{% url 'logout' %}"  class="btn btn-dark">Logout</a>
     {% if user.is_superuser %}
-    <a href="{% url 'register' %}"  class="btn btn-info">Add User</a>
+    <a href="{% url 'register' %}"  class="btn btn-success ">Add User</a>
       
     {% endif %}
 

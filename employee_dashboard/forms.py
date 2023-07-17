@@ -58,15 +58,9 @@ class LeaveForm(forms.ModelForm):
         fields = ("start_date", "end_date", "reason")
 
 
-class TodayTaskForm(forms.ModelForm):
-    class Meta:
-        model = TodayTasks
-        fields = ("comment",)
-
 
 class PaychequeForm(forms.ModelForm):
     pay_period = forms.DateField(widget=DateInput)
-    gross_salary = forms.CharField(max_length=20, required=False)
     
 
     class Meta:

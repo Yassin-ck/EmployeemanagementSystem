@@ -37,9 +37,10 @@ def allowed_users(allowed_roles=[]):
 
 
 def dashboard_authentication(view_func):
-    def wrappers(request,*args,**kwargs):
+    def wrapper(request, *args, **kwargs):
         if request.user.is_authenticated:
-            return view_func(request,*args,**kwargs)
+            print('decorator')
+            return view_func(request, *args, **kwargs)
         else:
-            return redirect('login')
-    return wrappers
+            return redirect('home')
+    return wrapper

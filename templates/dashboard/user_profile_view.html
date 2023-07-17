@@ -8,7 +8,7 @@
    <div class="container">
      
      <h4>{{users}}</h4>
-     <a href="{% url 'user_profile_single_view' users.id %}">Open</a>
+     <a href="{% url 'user_profile_single_view' users.id %}" class="btn btn-secondary">Open</a>
     </div>
   </div>
   {% endfor %}

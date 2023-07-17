@@ -1,15 +1,29 @@
 {% extends "includes/sidebar.html" %}
 {% block contents %}
- <form action="" method="POST">
-{% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">submit</button>
- </form>
- {% if request.user.is_authenticated and request.user.is_superuser  %}
- 
-<a href="{% url 'leave_view' %}"> view</a>
- {% else %}
-<a href="{% url 'leave_personal_view' id=user.id %}"> view</a>
- {% endif %}
+<div class="container d-flex justify-content">
+
+    <div>
+        <form action="" method="POST">
+   {% csrf_token %}
+       {{form.as_p}}
+       <button type="submit" class="btn" style="background-color: bisque;">submit</button>
+    </form>
+</div>
+
+<div>
+    {% if 'leave_form_edit' not in request.path %}
+  
+    <a href="{% url 'leave_personal_view' id=user.id %}" class="btn btn-warning">Leaves</a>
+{% endif %}
+    
+</div>
+</div>
+ <style>
+
+    .contaniner{
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+    }
+ </style>
  
 {% endblock contents %}

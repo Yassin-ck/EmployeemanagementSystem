@@ -1,19 +1,23 @@
 {% extends "includes/sidebar.html" %}
 
 {% block contents %}
-<div className=" d-flex flex-column container ">
-  <div className="row gap-5">
-
-{% for cheque in cheques %}
-  <div class="container">
-
-      <h4>{{cheque}}</h4>
-          <a href="{% url 'paycheque_edit' cheque.id %}">edit</a>
-          <a href="{% url 'paycheque_delete' cheque.id %}">delete</a>
+<div class="d-flex flex-column container">
+  <div class="row gap-5">
+    {% for paycheque in cheques %}
+    <div class="container">
+      <h4>Pay Slip</h4>
+      <p><strong>Name :</strong> {{ paycheque.user.first_name }} {{paycheque.user.last_name}}</p>
+      <p><strong>Emp-Code:</strong> {{ paycheque.user.username }}</p>
+      <p><strong>paid on:</strong> {{ paycheque.pay_period }}</p>
+      <p><strong>Gross Salary:</strong> {{ paycheque.gross_salary }}</p>
+      <p><strong>Deductions:</strong> {{ paycheque.deductions }}</p>
+      <p><strong>Incentives/Bonus:</strong> {{ paycheque.incentives_bonus }}</p>
+      <p><strong>Net Pay:</strong> {{ paycheque.net_pay }}</p>
+      <p><strong>Paid By :</strong> {{ paycheque.employer}}</p>
+      <a href="{% url 'paycheque_edit' paycheque.id %}" class="btn btn-secondary">Edit</a>
+      <a href="{% url 'paycheque_delete' paycheque.id %}" class="btn btn-dark">Delete</a>
+    </div>
+    {% endfor %}
   </div>
-{% endfor %}
-  </div>
-  </div>
-
-
+</div>
 {% endblock contents %}

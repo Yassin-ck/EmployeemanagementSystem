@@ -69,6 +69,11 @@ class Department_notice(models.Model):
             
             
 class LeaveApply(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -76,8 +81,9 @@ class LeaveApply(models.Model):
     approved_by_hr =models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='approved_leaves_hr',blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES,blank =True,default='Pending') 
 
-
+ 
 
     class Meta:
         ordering = ['-updated_at','-created_at']
@@ -92,10 +98,10 @@ class LeaveApply(models.Model):
 
 
 class TodayTasks(models.Model):
-    notice_board = models.ForeignKey(Notice_board, on_delete=models.CASCADE, null=True)
-    department_notice_board = models.ForeignKey(Department_notice, on_delete=models.CASCADE, null=True)
+    notice_board = models.ForeignKey(Notice_board, on_delete=models.CASCADE, null=True,related_name='notice_board_comment')
+    department_notice_board = models.ForeignKey(Department_notice, on_delete=models.CASCADE, null=True,related_name='department_comment')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.TextField()
+    comment = models.TextField(null=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -106,13 +112,18 @@ class TodayTasks(models.Model):
         return f'{self.user} Commented {self.comment}'
 
 class Paycheque(models.Model):
+    employer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='paychequed_by',
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='paycheques',
     )
     pay_period = models.DateField()
-    gross_salary = models.CharField(max_length=20)
+    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
     deductions = models.DecimalField(max_digits=10, decimal_places=2)
     net_pay = models.DecimalField(max_digits=10, decimal_places=2)
     incentives_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
