@@ -3,8 +3,8 @@
  <form action="" method="POST">
 {% csrf_token %}
     {{form.as_p}}
-    <button type="submit" class="btn btn-secondary">submit</button>
+    <button type="submit" class="btn btn-secondary">Generate</button>
  </form>
-<a href="{% url 'paycheque_view' %}" class="btn btn-primary"> view</a>
+<a href="{% url 'paycheque_view' %}" class="btn btn-primary">view</a>
  
 {% endblock contents %}

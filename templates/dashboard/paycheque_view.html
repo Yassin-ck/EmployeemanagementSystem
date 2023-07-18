@@ -6,14 +6,16 @@
     {% for paycheque in cheques %}
     <div class="container">
       <h4>Pay Slip</h4>
-      <p><strong>Name :</strong> {{ paycheque.user.first_name }} {{paycheque.user.last_name}}</p>
-      <p><strong>Emp-Code:</strong> {{ paycheque.user.username }}</p>
-      <p><strong>paid on:</strong> {{ paycheque.pay_period }}</p>
-      <p><strong>Gross Salary:</strong> {{ paycheque.gross_salary }}</p>
-      <p><strong>Deductions:</strong> {{ paycheque.deductions }}</p>
-      <p><strong>Incentives/Bonus:</strong> {{ paycheque.incentives_bonus }}</p>
-      <p><strong>Net Pay:</strong> {{ paycheque.net_pay }}</p>
-      <p><strong>Paid By :</strong> {{ paycheque.employer}}</p>
+      <p><strong>Name : </strong> {{ paycheque.user.first_name }} {{paycheque.user.last_name}}</p>
+      <p><strong>Emp-Code : </strong> {{ paycheque.user.username }}</p>
+      <p><strong>Paid on : </strong> {{ paycheque.created_at }}</p>
+      <p><strong>Base Salary : </strong> {{ paycheque.base_salary }}</p>
+      <p><strong>Overtime Pay : </strong> {{ paycheque.base_salary }}</p>
+      <p><strong>Bonus : </strong> {{ paycheque.bonus }}</p>
+      <p><strong>Allowances : </strong> {{ paycheque.allowances }}</p>
+      <p><strong>Deductions : </strong> {{ paycheque.deductions }}</p>
+      <p><strong>Total Salary : </strong> {{ paycheque.salary }}</p>
+      <p><strong>Paid By : </strong> {{ paycheque.employer}}</p>
       <a href="{% url 'paycheque_edit' paycheque.id %}" class="btn btn-secondary">Edit</a>
       <a href="{% url 'paycheque_delete' paycheque.id %}" class="btn btn-dark">Delete</a>
     </div>

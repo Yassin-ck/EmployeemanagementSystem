@@ -21,8 +21,14 @@
                     
                     <a href="{% url 'leave_view' %}">Leave Requests</a>
                     {% else %}
-                    <a href="{% url 'leave_form' %}">Leave Form</a>
+                    <a href="{% url 'leave_personal_view' request.user.id %}">Leave Form</a>
                     {% endif %}
+                    {% if  request.user.is_manager %}
+                    <a href="{% url 'today_task_view' %}">Today Tasks</a>
+                    {% elif request.user.is_worker %}
+                  <a href="{% url 'today_task_single_view' request.user.id  %}">Today Tasks</a>
+                    {% endif %}
+                    
                     {% if request.user.is_authenticated and request.user.is_superuser %}
                     <a href="{% url 'paycheque_form' %}">Pay Cheque</a>
                 

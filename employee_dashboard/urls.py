@@ -4,12 +4,12 @@ from . import views
 
 urlpatterns = [
     path('',views.Notice_board_view,name='dashboard'),
-    path('<int:id>/',views.Notice_board_single_view,name='dashboard_single'),
+    # path('<int:id>/',views.Notice_board_single_view,name='dashboard_single'),
     path('notice_hr_cre ate/',views.Notice_board_hr_crud,name='notice_hr_create'),
     path('notice_hr_edit/<int:id>/',views.Notice_board_hr_crud,name='notice_hr_edit'),
     path('notice_hr_delete/<int:id>/',views.Notice_board_hr_delete,name='notice_hr_delete'),
     path('department_notice_view/',views.Department_notice_view,name='department_notice_view'),
-    path('department_notice_view/<int:id>',views.Department_notice_single_view,name='department_notice_single_view'),
+    # path('department_notice_view/<int:id>',views.Department_notice_single_view,name='department_notice_single_view'),
     path('department_notice_create/',views.Department_notice_crud,name='department_notice_create'),
     path('department_notice_edit/<int:id>/',views.Department_notice_crud,name='department_notice_edit'),
     path('department_notice_delete/<int:id>/',views.Department_notice_delete,name='department_notice_delete'),
@@ -29,6 +29,10 @@ urlpatterns = [
     path('user_profile_single_view/<int:id>',views.user_profile_view,name='user_profile_single_view'),
     path('user_profile_edit/<int:id>/',views.user_profile_form,name='user_profile_edit'),
     path('user_profile_delete/<int:id>/',views.user_profile_delete,name='user_profile_delete'),   
+    path('today_task_view/',views.Today_task_view,name='today_task_view'),   
+    path('today_task_single_view/<int:id>/',views.Today_task_view,name='today_task_single_view'),   
+    path('today_task_form/',views.Today_task_form,name='today_task_form'),   
+    path('today_task_delete/<int:id>/',views.Today_task_delete,name='today_task_delete'),   
 ] 
 
 

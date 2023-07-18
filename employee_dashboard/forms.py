@@ -15,6 +15,12 @@ class DateInput(forms.DateInput):
     input_type = "date"
 
 
+class TodayTaskForm(forms.ModelForm):
+    class Meta:
+        model = TodayTasks
+        fields = ('comment',)
+
+
 class NoticeboardForm(forms.ModelForm):
     image = forms.ImageField(required=False)
 
@@ -60,24 +66,23 @@ class LeaveForm(forms.ModelForm):
 
 
 class PaychequeForm(forms.ModelForm):
-    pay_period = forms.DateField(widget=DateInput)
     
 
     class Meta:
         model = Paycheque
         fields = (
             "user",
-            "pay_period",
-            "gross_salary",
+            "base_salary",
+            "allowances",
+            "overtime_hours",
+            "overtime_pay_rate",
+            "bonus",
             "deductions",
-            "net_pay",
-            "incentives_bonus",
         )
 
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.fields['user'].required = False
-            self.fields['gross_salary'].required = False
 
 
 class UserProfileForm(forms.ModelForm):
@@ -123,3 +128,4 @@ class UserProfileForm(forms.ModelForm):
                 "Country should only contain alphabetic characters."
             )
         return country
+

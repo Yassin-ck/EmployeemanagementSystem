@@ -1,0 +1,15 @@
+{% extends "includes/sidebar.html" %}
+
+{% block contents %}
+  
+<form action="" method="POST">
+
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <div>
+        <input type="submit" value="Submit" class="btn">
+    </div>
+</form>
+
+{% endblock contents %}

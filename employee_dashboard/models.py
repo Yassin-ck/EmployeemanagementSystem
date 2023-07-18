@@ -44,7 +44,7 @@ class Department_notice(models.Model):
     image = models.ImageField(upload_to='department/',blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    assigned_to = models.ForeignKey(User,on_delete=models.CASCADE)
     
     class Meta:
         ordering = ['-updated_at','-created_at']
@@ -98,9 +98,8 @@ class LeaveApply(models.Model):
 
 
 class TodayTasks(models.Model):
-    notice_board = models.ForeignKey(Notice_board, on_delete=models.CASCADE, null=True,related_name='notice_board_comment')
     department_notice_board = models.ForeignKey(Department_notice, on_delete=models.CASCADE, null=True,related_name='department_comment')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     comment = models.TextField(null=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -108,8 +107,15 @@ class TodayTasks(models.Model):
     class Meta:
         ordering = ['-updated_at','-created_at']
     
+    
+    
     def __str__(self):
-        return f'{self.user} Commented {self.comment}'
+        if self.department_notice_board:
+            return f'{self.user} commented on DepartmentBoard : {self.comment}'
+        else:
+            return f'{self.user} commented on NoticeBoard : {self.comment}'
+
+
 
 class Paycheque(models.Model):
     employer = models.ForeignKey(
@@ -122,21 +128,31 @@ class Paycheque(models.Model):
         on_delete=models.CASCADE,
         related_name='paycheques',
     )
-    pay_period = models.DateField()
-    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
-    deductions = models.DecimalField(max_digits=10, decimal_places=2)
-    net_pay = models.DecimalField(max_digits=10, decimal_places=2)
-    incentives_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    base_salary = models.DecimalField(max_digits=15, decimal_places=4)
+    allowances = models.DecimalField(max_digits=15, decimal_places=4, default=0)
+    overtime_hours = models.DecimalField(max_digits=5, decimal_places=4, default=0)
+    overtime_pay_rate = models.DecimalField(max_digits=15, decimal_places=4, default=0)
+    bonus = models.DecimalField(max_digits=15, decimal_places=4, default=0)
+    deductions = models.DecimalField(max_digits=15, decimal_places=4, default=0)
+    salary = models.DecimalField(max_digits=15, decimal_places=4,null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    def Total_salary(self):
+        salary = self.base_salary+self.allowances
+        overtime_salary = self.overtime_hours * self.overtime_pay_rate
+        salary +=overtime_salary
+        salary +=self.bonus
+        salary -=self.deductions
+        return salary
     
     
     class Meta:
         ordering = ['-updated_at','-created_at']
 
-    def __str__ (self): 
-        return str(self.gross_salary)
-
+   
+    def __str__(self):
+        return f'{self.employer} paid {self.salary} as salary to {self.user}'
+        
 
 
 
@@ -158,8 +174,8 @@ class UserProfile(models.Model):
     
     
     
-    def __str__(self):
-        return self.user.username 
+    # def __str__(self):
+    #     return self.user.username 
     
     def save(self,*args,**kwargs):
         super().save(*args,**kwargs)

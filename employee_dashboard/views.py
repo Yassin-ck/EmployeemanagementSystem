@@ -1,8 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from .forms import NoticeboardForm,DepartmentnoticeForm,LeaveForm,PaychequeForm,UserProfileForm
+from .forms import NoticeboardForm,DepartmentnoticeForm,LeaveForm,PaychequeForm,UserProfileForm,TodayTaskForm
 from .models import Notice_board,Department_notice,LeaveApply,TodayTasks,Paycheque,UserProfile
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from accounts.models import User
 from accounts.forms import UserForm
@@ -21,22 +20,23 @@ def Notice_board_view(request):
     notice_boards = Notice_board.objects.all()
     return render (request,'dashboard/notice_board.html',{'notice_boards':notice_boards})
 
-def Notice_board_single_view(request, id=0):
-    notice_board = Notice_board.objects.get(pk=id)
-    comments = notice_board.notice_board_comment.all().order_by('-created_at')
-    print(notice_board)
-    print(comments)
-    notice = get_object_or_404(Notice_board, pk=id)
-    if request.method == 'POST':
-        comment=request.POST.get('comment')
-        if comment:
-            comment_instance = TodayTasks.objects.create(
-                user=request.user,
-                notice_board = notice_board ,
-                comment=comment
-            )
-        return redirect('dashboard_single',id=notice_board.id)       
-    return render(request, 'dashboard/hr_depart_notice_single.html', {'notice': notice, 'comments': comments})
+# @dashboard_authentication
+# def Notice_board_single_view(request, id=0):
+#     notice_board = Notice_board.objects.get(pk=id)
+#     comments = notice_board.notice_board_comment.all().order_by('-created_at')
+#     print(notice_board)
+#     print(comments)
+#     notice = get_object_or_404(Notice_board, pk=id)
+#     if request.method == 'POST':
+#         comment=request.POST.get('comment')
+#         if comment:
+#             comment_instance = TodayTasks.objects.create(
+#                 user=request.user,
+#                 notice_board = notice_board ,
+#                 comment=comment
+#             )
+#         return redirect('dashboard_single',id=notice_board.id)       
+#     return render(request, 'dashboard/hr_depart_notice_single.html', {'notice': notice, 'comments': comments})
      
 
 
@@ -86,20 +86,20 @@ def Department_notice_view(request):
     return render(request,'dashboard/department_notice.html',{'department_notices':department_notices})
  
  
-@dashboard_authentication
-def Department_notice_single_view(request, id=0):   
-    notices = Department_notice.objects.get(pk=id)
-    comments_dept = notices.department_comment.all().order_by('-created_at')
+# @dashboard_authentication
+# def Department_notice_single_view(request, id=0):   
+#     notices = Department_notice.objects.get(pk=id)
+#     comments_dept = notices.department_comment.all().order_by('-created_at')
  
-    if request.method == 'POST':
-        department_instance = TodayTasks.objects.create(
-            user=request.user,
-            department_notice_board=notices,
-            comment=request.POST.get('comment')
-        )
-        return redirect('department_notice_single_view', id=notices.id)
+#     if request.method == 'POST':
+#         department_instance = TodayTasks.objects.create(
+#             user=request.user,
+#             department_notice_board=notices,
+#             comment=request.POST.get('comment')
+#         )
+#         return redirect('department_notice_single_view', id=notices.id)
 
-    return render(request, 'dashboard/dept_notice_single.html', {'notices': notices, 'comments_dept': comments_dept})
+#     return render(request, 'dashboard/dept_notice_single.html', {'notices': notices, 'comments_dept': comments_dept})
 
     
    
@@ -137,32 +137,40 @@ def Department_notice_delete(request,id=0):
     
 
 @dashboard_authentication
-def Leave_user_form(request,id=0):    
-    if request.method == 'POST':
-        if id == 0:
-            form = LeaveForm(request.POST)            
-        else:
-            leave = LeaveApply.objects.get(pk=id)
-            form = LeaveForm(request.POST,instance=leave)
-        if form.is_valid():
-            leave = form.save(commit=False)
-            leave.user = request.user
-            leave.save()
-            return redirect('leave_personal_view',id=leave.user.id)
-        
+def Leave_user_form(request,id=0): 
+    user_leave = LeaveApply.objects.filter(user=request.user) 
+    if user_leave.exists() and user_leave[0].status == 'Pending' :
+        messages.error(request,'Your Leave Request is Pending ')
+        return redirect('leave_personal_view',id=request.user.id)
     else:
-        if id == 0:
-            form = LeaveForm()
+        if request.method == 'POST':
+            if id == 0:
+                form = LeaveForm(request.POST)            
+            else:
+                leave = LeaveApply.objects.get(pk=id)
+                form = LeaveForm(request.POST,instance=leave)
+            if form.is_valid():
+                leave = form.save(commit=False)
+                leave.user = request.user
+                leave.save()
+                return redirect('leave_personal_view',id=leave.user.id)
+            
         else:
-            leave = LeaveApply.objects.get(pk=id)
-            form = LeaveForm(instance = leave)
-        return render(request,'dashboard/leave_form.html',{'form':form})
-        
+            if id == 0:
+                form = LeaveForm()
+            else:
+                leave = LeaveApply.objects.get(pk=id)
+                form = LeaveForm(instance = leave)
+            return render(request,'dashboard/leave_form.html',{'form':form})
+            
 
 @dashboard_authentication
 def Leave_user_view(request,id=0):
     if id == 0:
-        leaves = LeaveApply.objects.filter(status='Pending')
+        if request.user.is_superuser:
+            leaves = LeaveApply.objects.filter(status='Pending')
+        else:
+            return redirect('home')
     else:
         user = get_object_or_404(User,pk=id)
         leaves = LeaveApply.objects.filter(user=user)
@@ -185,7 +193,7 @@ def Leave_user_delete(request,id=0):
     return render(request,'dashboard/Delete.html')
 
 
-    
+@allowed_users(allowed_roles=['HumanResource'])
 def Leave_approval_rejection(request,id):
     leave_request = LeaveApply.objects.get(pk=id)
     if 'leave_approval' in request.path:
@@ -199,41 +207,46 @@ def Leave_approval_rejection(request,id):
         
     
 
-
-# @dashboard_authentication
-# def Today_task_form(request,id=0):
-#     if request.method == 'POST':
-#         if id==0:
-#             form = TodayTaskForm(request.POST)
-#         else:
-#             comments = TodayTasks.objects.get(pk=id)
-#             form = TodayTaskForm(request.POST,instance=comments)
-#         if form.is_valid():
-#             comment = form.save(commit=False)
-#             comment.user = request.user
-#             comment.save()
-#             return redirect('today_task_view')
-#         else:
-#             return HttpResponse('hell')
-#     else:
-#         if id == 0:
-#             form =TodayTaskForm()
-#         else:
-#             comments = TodayTasks.objects.get(pk=id)
-#             form = TodayTaskForm(instance=comments)
-#         return render(request,'dashboard/today_task_form.html',{'form':form})
+@allowed_users(allowed_roles=['worker'])
+def Today_task_form(request,id=0):
+    if request.method == 'POST':
+        if id==0:
+            form = TodayTaskForm(request.POST)
+        else:
+            comments = TodayTasks.objects.get(pk=id)
+            form = TodayTaskForm(request.POST,instance=comments)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.save()
+            return redirect('today_task_view',id=request.user.id)
+        else:
+            return HttpResponse('hell')
+    else:
+        if id == 0:
+            form =TodayTaskForm()
+        else:
+            comments = TodayTasks.objects.get(pk=id)
+            form = TodayTaskForm(instance=comments)
+        return render(request,'dashboard/today_task_form.html',{'form':form})
     
-# @dashboard_authentication
-# def Today_task_view(request):
-#     comments = TodayTasks.objects.all()
-#     return render(request,'dashboard/today_task_view.html',{'comments':comments})
+@allowed_users(allowed_roles=['worker','manager'])
+@dashboard_authentication
+def Today_task_view(request, id=0):
+        if id == 0:
+            today_tasks = TodayTasks.objects.all()
+        else:
+            user = User.objects.get(pk=id)   
+            today_tasks = TodayTasks.objects.filter(user=user) 
+        return render(request, 'dashboard/today_task_view.html', {'today_tasks': today_tasks})
 
-# def Today_task_delete(request,id=0):
-#     if request.method == 'POST':
-#         comment = TodayTasks.objects.get(pk=id)
-#         comment.delete()  
-#         return redirect('home')  
-#     return render(request,'dashboard/Delete.html')
+
+def Today_task_delete(request,id=0):
+    if request.method == 'POST':
+        tasks = TodayTasks.objects.get(pk=id)
+        tasks.delete()  
+        return redirect('home')  
+    return render(request,'dashboard/Delete.html')
             
 
 
@@ -241,6 +254,7 @@ def Leave_approval_rejection(request,id):
 def Paycheque_form(request,id=0):
     if request.method == 'POST':
         if id == 0:
+            
            
             form = PaychequeForm(request.POST)
         else:
@@ -251,7 +265,8 @@ def Paycheque_form(request,id=0):
             print(form)
             paycheque = form.save(commit=False)
             paycheque.employer = request.user
-
+            # payc
+            paycheque.salary = Paycheque.Total_salary(paycheque)
             paycheque.save()
             return render(request,'accounts/confirmation_messages.html')
         else:
@@ -264,6 +279,10 @@ def Paycheque_form(request,id=0):
             cheques = Paycheque.objects.get(pk=id)
             form = PaychequeForm(instance=cheques)
         return render (request,'dashboard/paycheque_form.html',{'form':form})
+
+    
+
+
             
 @dashboard_authentication
 def Paycheque_view(request,id=0):
@@ -325,8 +344,11 @@ def user_profile_form(request, id=0):
 @dashboard_authentication
 def user_profile_view(request,id=0):
     if id==0:
-        user_profiles = UserProfile.objects.all()
-        return render (request,'dashboard/user_profile_view.html',{'user_profiles':user_profiles})
+        if request.user.is_superuser:
+            user_profiles = UserProfile.objects.all()
+            return render (request,'dashboard/user_profile_view.html',{'user_profiles':user_profiles})
+        else:
+            return redirect('home')
     else:
         user_profile = UserProfile.objects.get(pk=id)
         return render (request,'dashboard/user_profile_single_view.html',{'user_profile':user_profile})

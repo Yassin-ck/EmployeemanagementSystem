@@ -1,12 +1,16 @@
 {% extends "includes/sidebar.html" %}
 
 {% block contents %}
+<style>
+  a{
+text-decoration: none;
+  }
+</style>
 <div class="container">
   <div class="row gap-5">
     <div class="col-md-12">
       <form action="{% url 'department_notice_view' %}" method="GET">
         {% for department_notice in department_notices %}
-        <a href="{% url 'department_notice_single_view' department_notice.id %}">
 
           <div class="card mb-4">
             <div class="card-body">
@@ -24,7 +28,6 @@
             </div>
           </div>
         </div>
-      </a>
         {% endfor %}
         <div class="text-center">
             {% if request.user.is_authenticated and request.user.is_manager %}     

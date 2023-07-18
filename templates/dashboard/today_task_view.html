@@ -1,0 +1,12 @@
+{% extends "includes/sidebar.html" %}
+
+{% block contents %}
+  
+{% for tasks in today_tasks %}
+  <p>{{tasks}}</p>
+{% endfor %}
+{% if request.user.is_worker %}
+  <a href="{% url 'today_task_form' %}"></a>
+{% endif %}
+{% include "includes/messages.html" %}
+{% endblock contents %}

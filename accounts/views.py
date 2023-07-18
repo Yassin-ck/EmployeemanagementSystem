@@ -20,7 +20,7 @@ from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 #Blocking user After 3 failed Login Attempt
-from BruteBuster.models import FailedAttempt
+# from BruteBuster.models import FailedAttempt
 from employee_dashboard.models import UserProfile
 # from django.utils  import timezone 
 
@@ -28,6 +28,8 @@ from employee_dashboard.models import UserProfile
 from django.contrib.auth.models import Group
 from employeemanagmentsystem.decorators import unauthenticated_user,allowed_users
 
+
+from django.db.models import Max
 # Create your views here.
 @login_required(login_url='login')
 def homePage(request):
@@ -48,73 +50,81 @@ def Registration(request):
             role = form.cleaned_data['role']
             department = form.cleaned_data['department']
             email = form.cleaned_data['email']
-            employeeCode = form.cleaned_data['username']
+            # employeeCode = form.cleaned_data['username']
             print('hii')
             try:
                 print('hii1')
                 User.objects.get(email=email)
                 form.add_error('email', 'User with the same email already exists')
             except User.DoesNotExist:
-                try:
-                    print('hii2')
-                    User.objects.get(username=employeeCode.upper())
-                    messages.error(request, 'EmployeeCode already in use')
-                except User.DoesNotExist:
-                    print('hii3')
-                    if len(mobile) <= 12 and re.match(r'^\+\d+$', mobile):
-                        form.add_error('mobile', 'Please enter a valid mobile number with CountryCode (e.g., +1234567890)')
-                        print('kk')
-                    else:
-                        print('jhgf')
-                        user = form.save(commit=False)
-                        # user.date_joined = timezone.now()
-                        user.username = employeeCode.upper()
-                        temporary_password = secrets.token_urlsafe(10)
-                        current_site = get_current_site(request)
-                        mail_subject = "Welcome, Here's Your EmployeeCode and Password to Login..."
-                        message = render_to_string('accounts/login_id_pass.html', {
-                            'user': user,
-                            'password': temporary_password,
-                            'domain': current_site,
-                        })
-                        to_email = email
-                        try:
-                            print('fff')
-                            send_email = EmailMessage(mail_subject, message, to=[to_email])
-                            send_email.send()
-                            print('fff')
-                            password = make_password(temporary_password)
-                            user.password = password
-                            print('fff')
-                            user.save()  
-                            if user.role == User.Role.HR:    
-                                user.is_superuser = True
-                                hr_group = Group.objects.get(name='HumanResource')
-                                print(hr_group)
-                                user.groups.add(hr_group) 
-                            elif user.role == User.Role.MANAGER:
-                                user.is_manager = True
-                                
-                                manager_group = Group.objects.get(name='manager')
-                                user.groups.add(manager_group)
-                                print('fghhjbs')
-                            else:
-                                user.is_worker = True
-                                worker_group = Group.objects.get(name='worker')
-                                user.groups.add(worker_group)
-                            user.save()
-        
-                            profile = UserProfile()
-                            print('jhg')
-                            profile.user_id = user.id
-                            profile.profile_picture = 'userprofile/default.profilepicture.jpg'
-                            print('jjj')
-                            profile.save()
-                            print('oihghgjkh')
-                            return redirect('emailpassid')
+                # try:
+                #     print('hii2')
+                #     # User.objects.get(username=employeeCode.upper())
+                #     # messages.error(request, 'EmployeeCode already in use')
+                # except User.DoesNotExist:
+                print('hii3')
+                if len(mobile) <= 12 and re.match(r'^\+\d+$', mobile):
+                    form.add_error('mobile', 'Please enter a valid mobile number with CountryCode (e.g., +1234567890)')
+                    print('kk')
+                else:
+                    print('jhgf')
+                    user = form.save(commit=False)
+                    # user.date_joined = timezone.now()
+                    # user.username = employeeCode.upper()
+                    last_id = User.objects.aggregate(last_id=Max('id'))['last_id']
+                    next_id = last_id+1
+                    user.username = f"EMP{str(next_id).zfill(3)}"
+                    temporary_password = secrets.token_urlsafe(10)
+                    current_site = get_current_site(request)
+                    mail_subject = "Welcome, Here's Your EmployeeCode and Password to Login..."
+                    message = render_to_string('accounts/login_id_pass.html', {
+                        'user': user,
+                        'password': temporary_password,
+                        'domain': current_site,
+                    })
+                    to_email = email
+                    try:
+                        print('fff')
+                        send_email = EmailMessage(mail_subject, message, to=[to_email])
+                        send_email.send()
+                        print('fff')
+                        password = make_password(temporary_password)
+                        user.password = password
+                        
+                        print(user.username)
+                        print(next_id)
 
-                        except:
-                            messages.error(request, 'Email not sent')
+                        print('fff')
+                        
+                        user.save()
+                        if user.role == User.Role.HR:    
+                            user.is_superuser = True
+                            hr_group = Group.objects.get(name='HumanResource')
+                            print(hr_group)
+                            user.groups.add(hr_group) 
+                        elif user.role == User.Role.MANAGER:
+                            user.is_manager = True
+                            
+                            manager_group = Group.objects.get(name='manager')
+                            user.groups.add(manager_group)
+                            print('fghhjbs')
+                        else:
+                            user.is_worker = True
+                            worker_group = Group.objects.get(name='worker')
+                            user.groups.add(worker_group)
+                        user.save()
+    
+                        profile = UserProfile()
+                        print('jhg')
+                        profile.user_id = user.id
+                        profile.profile_picture = 'userprofile/default.profilepicture.jpg'
+                        print('jjj')
+                        profile.save()
+                        print('oihghgjkh')
+                        return redirect('emailpassid')
+
+                    except:
+                        messages.error(request, 'Email not sent')
                        
                         
         else:
@@ -139,8 +149,6 @@ def loginPage(request):
         
         if user is not None:
             if user.last_login is None:
-                user.is_active = False
-                user.save()
                 # First login after registration, redirect to reset password
                 return redirect('passwordresetemail',id = user.id)
             else:
@@ -154,14 +162,14 @@ def loginPage(request):
             form.add_error('username', '')
             form.add_error('password', '')
 
-            user = FailedAttempt.objects.get(username=EmployeeCode)
-            user_blocked = user.blocked()
-            if user_blocked:
-                messages.error(request, """Your Account Has Been Blocked...
-                                   Try Again After Sometimes""")
-            else:
-                messages.error(request, """Incorrect Id or Password!!!  
-                      You tried {user.failures} Attempts""")
+            # user = FailedAttempt.objects.get(username=EmployeeCode)
+            # user_blocked = user.blocked()
+            # if user_blocked:
+            #     messages.error(request, """Your Account Has Been Blocked...
+            #                        Try Again After Sometimes""")
+            # else:
+            #     messages.error(request, f"""Incorrect Id or Password!!!  
+            #           You tried {user.failures} Attempts""")
 
     else:
         form = LoginForm()
@@ -183,6 +191,7 @@ def reset_password(request,id=0):
                 user.is_active = True
                 user.save()
                 login(request,user)
+                # request.session['user'] = user
                 return redirect('home')
                 
             else:
@@ -214,22 +223,29 @@ def verify(request,uidb64,token):
 def EmialPassowrdreset(request,id=0):
     if request.method == 'POST':
         email = request.POST.get('email')
-        try:
-            user=User.objects.get(pk=id)
-            current_site = get_current_site(request)
-            mail_subject = 'reset password' 
-            message = render_to_string('accounts/reset_password_verification.html',{
-                'user':user,
-                'domain':current_site,
-                'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-                'token':default_token_generator.make_token(user)    #creating the token for specific user      
-                })
-            to_email = email
-            send_email = EmailMessage(mail_subject,message,to=[to_email])
-            send_email.send()
-            return redirect('resetpasswordemailverification')
-        except User.DoesNotExist:
-            messages.error(request,'Unauthorized Entry caught')
+        user = User.objects.get(pk=id)
+        print(user)
+        if email == user.email:
+            try:
+                user=User.objects.get(pk=id)
+                current_site = get_current_site(request)
+                mail_subject = 'reset password' 
+                message = render_to_string('accounts/reset_password_verification.html',{
+                    'user':user,
+                    'domain':current_site,
+                    'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token':default_token_generator.make_token(user)    #creating the token for specific user      
+                    })
+                to_email = email
+                send_email = EmailMessage(mail_subject,message,to=[to_email])
+                user.is_active = False
+                send_email.send()
+                return redirect('resetpasswordemailverification')
+            except User.DoesNotExist:
+                messages.error(request,'Unauthorized Entry caught')
+        else:
+            user.save()
+            return redirect ('login')
             
         
     return render(request,'accounts/email_reset_password.html')
@@ -283,3 +299,4 @@ def logoutPage(request):
     logout(request)
     return redirect('login')
     
+

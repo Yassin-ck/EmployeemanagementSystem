@@ -15,7 +15,6 @@
   <div class="row gap-5">
     <div class="col-md-12">
       {% for notice in notice_boards %}
-      <a href="{% url 'dashboard_single' notice.id %}" class="card-link">
         <div class="card mb-4">
           <div class="card-body">
             <h3 class="card-title">{{ notice.title }}</h3>
@@ -32,7 +31,6 @@
             </div>
           </div>
         </div>
-      </a>
       {% endfor %}
       <div class="text-center">
         {% if request.user.is_authenticated and request.user.is_superuser %}
