@@ -20,6 +20,7 @@
             <h3 class="card-title">{{ notice.title }}</h3>
             <h5 class="card-title">{{ notice.subject }}</h5>
             <p class="card-text">{{ notice.content }}</p>
+            <p class="card-text">{{ notice.user.department }}</p>
             {% if notice.image %}
             <img src="{{ MEDIA_URL }}{{ notice.image.url }}" alt="Image" class="img-fluid">
             {% endif %}
@@ -33,7 +34,7 @@
         </div>
       {% endfor %}
       <div class="text-center">
-        {% if request.user.is_authenticated and request.user.is_superuser %}
+        {% if request.user.is_authenticated and request.user.is_hr %}
         <a href="{% url 'notice_hr_create' %}" class="btn btn-success">Add</a>
         {% endif %}
       </div>

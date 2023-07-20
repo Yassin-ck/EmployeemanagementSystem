@@ -1,15 +1,53 @@
 {% extends "includes/sidebar.html" %}
 
 {% block contents %}
-  
+{% if department_task or 'today_task_edit' in request.path %}
+
+{% for task in department_task %}
+
+<p>Task Id: {{ task.id }}</p>
+<p>Task Subject: {{ task.subject }}</p>
+
+{% endfor %}
+
+ {% if 'today_task_edit' in request.path %}
+    <p>Task Id: {{ form.instance.department_notice_board.id }}</p>
+    <p>Task Subject: {{ form.instance.department_notice_board.subject }}</p>
+      
+    {% endif %} 
+
 <form action="" method="POST">
-
     {% csrf_token %}
-    {{form.as_p}}
-
     <div>
+        <label for="">Reply</label>
+        {{ form.comment }}
+        <label for="">Status</label>
+        {{ form.status }}
+
+    
+        <label for="">Task No.</label>
+        {{ form.department_notice_board}}
+
+       
+
+
+
+        </div>
+    <div>
+
+
         <input type="submit" value="Submit" class="btn">
     </div>
-</form>
+    </form>
 
+
+
+{% endif %}
+    {% if 'today_task_edit' not in request.path %}
+<a href="{% url 'today_task_single_view' request.user.id %}" >Completed</a>
+{% endif %}
+
+
+
+{% include "includes/messages.html" %}
 {% endblock contents %}

@@ -8,12 +8,12 @@ class UserForm(forms.ModelForm):
     is_superuser = forms.CheckboxInput()
     is_staff = forms.CheckboxInput()
     is_worker = forms.CheckboxInput()
-
+    
     class Meta:
         model = User
         exclude = ['password']
         
-        fields = ('first_name','last_name','email','role','department','mobile','username')
+        fields = ('first_name','last_name','email','role','mobile','username')
                   
         error_messages = {
             'username':{
@@ -28,7 +28,6 @@ class UserForm(forms.ModelForm):
             'last_name' : 'Last Name',
             'email':'Email',
             'role':'Role',
-            'department':'Department',
             'mobile':'Mobile Number',
             'username':'Employee-Code',
             'is_superuser':'Human Resource',
@@ -56,14 +55,20 @@ class UserForm(forms.ModelForm):
 
         
     def __init__(self, *args, **kwargs):
-        
+        superuser = kwargs.pop('superuser',False)        
         super().__init__(*args, **kwargs)
-        self.fields['role'].required = False
         self.fields['role'].widget.choices[0] = ('', 'Select')
-        self.fields['department'].widget.choices[0] = ('', 'Select ')
-    
+        if not superuser:
+            self.fields['role'].choices = [choice for choice in self.fields['role'].choices if choice[0] !=User.Role.HR ]
     
   
+ 
+class DepartmentHrForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('department',)
+
+ 
             
 class LoginForm(forms.ModelForm):
     username = forms.CharField(required=True)

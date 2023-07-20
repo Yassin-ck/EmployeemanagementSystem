@@ -14,6 +14,7 @@
             {% endfor %}
             {% if 'emailpassid/' in request.path %}
             <a href="{% url 'register' %}" class="btn mt-5 btn-success">Add New User</a>
+            <a href="{% url 'home' %}" class="btn mt-5 btn-info">Home</a>
             {% elif 'paycheque_form'  in request.path %}
             <a href="{% url 'paycheque_form' %}" class="btn  mt-5">Paycheque</a>
             {% elif  'paycheque_edit' in request.path %}

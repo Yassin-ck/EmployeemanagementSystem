@@ -14,10 +14,11 @@
         <h1 class="text-info">Home</h1>
        
       <h3>Welcome {{user.first_name}} {{user.last_name}}</h3>
-      <h3> {{user.role}}</h3>
+      <h3>Role : {{user.role}}</h3>
+      <h5>Department : {{user.department}}</h5>
     </div>
     <a href="{% url 'logout' %}"  class="btn btn-dark">Logout</a>
-    {% if user.is_superuser %}
+    {% if user.is_hr %}
     <a href="{% url 'register' %}"  class="btn btn-success ">Add User</a>
     
     {% endif %}

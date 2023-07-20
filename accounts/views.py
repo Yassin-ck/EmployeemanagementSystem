@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .forms import UserForm,LoginForm,CodeForm
+from .forms import UserForm,LoginForm,CodeForm,DepartmentHrForm
 from .models import User
 from django.http import HttpResponse
 from django.contrib import messages
@@ -38,24 +38,25 @@ def homePage(request):
 
 @allowed_users(allowed_roles=['HumanResource'])
 def Registration(request):
+    hr_superuser = request.user.is_authenticated and request.user.is_superuser
     if request.method == 'GET':
-        form = UserForm()
+        form = UserForm(superuser=hr_superuser)
     else:
-        form = UserForm(request.POST)
+        form = UserForm(request.POST,superuser=hr_superuser)
         print('hii4')
+        
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             mobile = form.cleaned_data['mobile']
             role = form.cleaned_data['role']
-            department = form.cleaned_data['department']
             email = form.cleaned_data['email']
             # employeeCode = form.cleaned_data['username']
             print('hii')
             try:
                 print('hii1')
                 User.objects.get(email=email)
-                form.add_error('email', 'User with the same email already exists')
+                messages.error(request, 'User with the same email already exists')
             except User.DoesNotExist:
                 # try:
                 #     print('hii2')
@@ -74,6 +75,13 @@ def Registration(request):
                     last_id = User.objects.aggregate(last_id=Max('id'))['last_id']
                     next_id = last_id+1
                     user.username = f"EMP{str(next_id).zfill(3)}"
+                    user.department = request.user.department
+                    if request.user.department == User.Department.FRONTEND:
+                        user.is_frontend = True
+                    elif request.user.department == User.Department.BACKEND:
+                        user.is_backend =True
+                    else:
+                        user.is_testing = True
                     temporary_password = secrets.token_urlsafe(10)
                     current_site = get_current_site(request)
                     mail_subject = "Welcome, Here's Your EmployeeCode and Password to Login..."
@@ -86,7 +94,7 @@ def Registration(request):
                     try:
                         print('fff')
                         send_email = EmailMessage(mail_subject, message, to=[to_email])
-                        send_email.send()
+                        send_email.send()    
                         print('fff')
                         password = make_password(temporary_password)
                         user.password = password
@@ -97,14 +105,14 @@ def Registration(request):
                         print('fff')
                         
                         user.save()
+                            
                         if user.role == User.Role.HR:    
-                            user.is_superuser = True
-                            hr_group = Group.objects.get(name='HumanResource')
+                            user.is_hr = True                                                        
+                            hr_group = Group.objects.get(name='HumanResource')                            
                             print(hr_group)
                             user.groups.add(hr_group) 
                         elif user.role == User.Role.MANAGER:
-                            user.is_manager = True
-                            
+                            user.is_manager = True                            
                             manager_group = Group.objects.get(name='manager')
                             user.groups.add(manager_group)
                             print('fghhjbs')
@@ -117,10 +125,17 @@ def Registration(request):
                         profile = UserProfile()
                         print('jhg')
                         profile.user_id = user.id
-                        profile.profile_picture = 'userprofile/default.profilepicture.jpg'
                         print('jjj')
                         profile.save()
                         print('oihghgjkh')
+                        if user.role == User.Role.HR:
+                            user.is_active = False
+                            user.is_testing =False
+                            user.is_backend =False
+                            user.is_frontend =False
+                            user.save()
+                           
+                            return redirect('hr_departmenting',id=user.id)
                         return redirect('emailpassid')
 
                     except:
@@ -136,19 +151,43 @@ def Registration(request):
     return render(request, 'accounts/register.html', context)   
 
 
-
+def Hr_departmenting(request,id=0):
+    user = User.objects.get(pk=id)
+    if request.method == 'POST':
+        form = DepartmentHrForm(request.POST)
+        if form.is_valid():
+            department = form.cleaned_data['department']
+            user.department = department
+            user.is_active = True
+            if user.department == User.Department.FRONTEND:
+                user.is_frontend = True
+            elif user.department == User.Department.BACKEND:
+                user.is_backend =True
+            else:
+                user.is_testing = True
+            user.save()
+            return redirect('emailpassid')
+        else:
+            user.delete()
+            return redirect('register')
+    form = DepartmentHrForm()
+    return render(request,'accounts/hr_departmenting.html',{'form':form})
+        # department = request.POST.get('department')
+        
+    
 
 
 @unauthenticated_user
 def loginPage(request):
     if request.method == 'POST':
+        
         form = LoginForm(request.POST)
         EmployeeCode = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=EmployeeCode, password=password)
-        
+        user = authenticate(username=EmployeeCode, password=password)
+        print(user)
         if user is not None:
-            if user.last_login is None:
+            if user.last_login is None and not user.is_superuser:
                 # First login after registration, redirect to reset password
                 return redirect('passwordresetemail',id = user.id)
             else:
@@ -161,6 +200,8 @@ def loginPage(request):
         else:
             form.add_error('username', '')
             form.add_error('password', '')
+            messages.error(request,'You Are Not Authenticated')    
+
 
             # user = FailedAttempt.objects.get(username=EmployeeCode)
             # user_blocked = user.blocked()
@@ -262,11 +303,13 @@ def resetpasswordemail_verificationPage(request):
     return render(request,'accounts/confirmation_messages.html') 
 
 
-def TwoFactorAuthentication(request):               
-    form = CodeForm(request.POST or None)
+def TwoFactorAuthentication(request): 
     pk = request.session.get('pk')
+    user = User.objects.get(pk=pk)
+    user.is_active = True
+    user.save()              
+    form = CodeForm(request.POST or None)
     if pk:
-        user = User.objects.get(pk=pk)
         code = user.code 
         code_user = f"{user.username} : {code}"
         if not request.POST:
@@ -289,6 +332,8 @@ def TwoFactorAuthentication(request):
                 login(request,user)                              
                 return redirect('home')
             else:
+                user.is_active=False
+                user.save()
                 messages.error(request,'Invalid OTP number')
                 
     return render(request,'accounts/twofactor_auth.html',{'form':form})

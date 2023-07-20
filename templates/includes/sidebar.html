@@ -17,7 +17,7 @@
                     <a href="{% url 'user_profile_single_view' request.user.userprofile.id %}">My Account</a>
                     <a href="{% url 'dashboard' %}">Notice Board</a>
                     <a href="{% url 'department_notice_view' %}">DepartmentNotice</a>
-                    {% if request.user.is_authenticated and request.user.is_superuser %}
+                    {% if request.user.is_authenticated and request.user.is_hr %}
                     
                     <a href="{% url 'leave_view' %}">Leave Requests</a>
                     {% else %}
@@ -26,10 +26,10 @@
                     {% if  request.user.is_manager %}
                     <a href="{% url 'today_task_view' %}">Today Tasks</a>
                     {% elif request.user.is_worker %}
-                  <a href="{% url 'today_task_single_view' request.user.id  %}">Today Tasks</a>
+                  <a href="{% url 'today_task_personal_form' request.user.id  %}">Today Tasks</a>
                     {% endif %}
                     
-                    {% if request.user.is_authenticated and request.user.is_superuser %}
+                    {% if request.user.is_authenticated and request.user.is_hr %}
                     <a href="{% url 'paycheque_form' %}">Pay Cheque</a>
                 
                     {% else %}
@@ -37,7 +37,7 @@
                     <a href="{% url 'paycheque_personal_view' id=user.id %}">View Paycheques</a>
 
                     {% endif %}
-                    {% if request.user.is_authenticated and request.user.is_superuser %}                
+                    {% if request.user.is_authenticated and request.user.is_hr %}                
                     <a href="{% url 'user_profile_view'  %}">User Profile</a>
                     {% endif %}
                     <a><i class="openbtn fa-solid fa-ellipsis-vertical pl-3 pr-3"  onclick="openNav()"></i></a>

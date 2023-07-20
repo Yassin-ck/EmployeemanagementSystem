@@ -31,7 +31,9 @@ urlpatterns = [
     path('user_profile_delete/<int:id>/',views.user_profile_delete,name='user_profile_delete'),   
     path('today_task_view/',views.Today_task_view,name='today_task_view'),   
     path('today_task_single_view/<int:id>/',views.Today_task_view,name='today_task_single_view'),   
-    path('today_task_form/',views.Today_task_form,name='today_task_form'),   
+    path('today_task_personal_form/<int:id>/',views.Today_task_personal,name='today_task_personal_form'),   
+    path('today_task_edit/<int:id>/',views.Today_task_edit,name='today_task_edit'),   
+    # path('today_task_form/',views.Today_task_form,name='today_task_form'),   
     path('today_task_delete/<int:id>/',views.Today_task_delete,name='today_task_delete'),   
 ] 
 

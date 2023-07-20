@@ -5,7 +5,7 @@ from .models import Notice_board,Department_notice,LeaveApply,TodayTasks,Paycheq
 from django.contrib import messages
 from accounts.models import User
 from accounts.forms import UserForm
-from PIL import Image
+# from PIL import Image
 from django.shortcuts import get_object_or_404
 from employeemanagmentsystem.decorators import allowed_users,dashboard_authentication
 from django.views.decorators.cache import never_cache
@@ -17,7 +17,19 @@ from django.urls import path
 
 @dashboard_authentication
 def Notice_board_view(request):
-    notice_boards = Notice_board.objects.all()
+    user = request.user
+    if user.is_frontend:
+        notice_boards = Notice_board.objects.filter(user__is_frontend=True)
+        print(notice_boards)
+    elif user.is_backend:
+        notice_boards = Notice_board.objects.filter(user__is_backend=True)   
+        print(notice_boards)
+    elif user.is_testing:
+        notice_boards = Notice_board.objects.filter(user__is_testing=True)
+        print(notice_boards)
+    else:
+        notice_boards = None
+        # print(user__is_testing)
     return render (request,'dashboard/notice_board.html',{'notice_boards':notice_boards})
 
 # @dashboard_authentication
@@ -42,6 +54,7 @@ def Notice_board_view(request):
 
 @allowed_users(allowed_roles=['HumanResource'])
 def Notice_board_hr_crud(request, id=0):
+    user = request.user
     if request.method == 'GET':
         if id == 0:
             form = NoticeboardForm()
@@ -52,7 +65,6 @@ def Notice_board_hr_crud(request, id=0):
     else:
         if id == 0:
             form = NoticeboardForm(request.POST,request.FILES)
-            
         else:
             notice = Notice_board.objects.get(pk=id)
             form = NoticeboardForm(request.POST,request.FILES,instance=notice)
@@ -60,6 +72,7 @@ def Notice_board_hr_crud(request, id=0):
         if form.is_valid():
             # print(form)
             notice=form.save(commit=False)
+            notice.user = request.user
             notice.save()
             
             return redirect('dashboard') 
@@ -81,8 +94,15 @@ def Notice_board_hr_delete(request,id):
     
                 
 @dashboard_authentication
-def Department_notice_view(request):  
-    department_notices = Department_notice.objects.all()
+def Department_notice_view(request): 
+    user = request.user 
+    if user.is_frontend:     
+        department_notices = Department_notice.objects.filter(assigned_to__is_frontend=True)
+    elif user.is_backend:     
+        department_notices = Department_notice.objects.filter(assigned_to__is_backend=True)
+    else:     
+        print(user)
+        department_notices = Department_notice.objects.filter(assigned_to__is_testing=True)
     return render(request,'dashboard/department_notice.html',{'department_notices':department_notices})
  
  
@@ -104,23 +124,39 @@ def Department_notice_view(request):
     
    
 @allowed_users(allowed_roles=['manager'])         
-def Department_notice_crud(request,id=0):
-    if request.method == 'POST':  
+def Department_notice_crud(request, id=0):
+    user = request.user
+    user_role = None
+    if user.is_frontend:
+        user_role = 'frontend'
+    elif user.is_backend:
+        user_role = 'backend'
+    elif user.is_testing:
+        user_role = 'testing'
+
+    if request.method == 'POST':
         if id == 0:
-            form = DepartmentnoticeForm(request.POST,request.FILES)
-        else:   
-            department_notice = Department_notice.objects.get(pk=id)
-            form = DepartmentnoticeForm(request.POST,request.FILES,instance = department_notice)
-        if form.is_valid():
-            form.save()
-            return redirect('department_notice_view') 
-    else:
-        if id == 0:
-            form = DepartmentnoticeForm()
+            form = DepartmentnoticeForm(data=request.POST, user_role=user_role, files=request.FILES)
         else:
             department_notice = Department_notice.objects.get(pk=id)
-            form = DepartmentnoticeForm(instance=department_notice)
-        return render(request,'dashboard/department_notice_crud.html',{'form':form})
+            form = DepartmentnoticeForm(data=request.POST, user_role=user_role, instance=department_notice, files=request.FILES)
+        if form.is_valid():
+            department = form.save(commit=False)
+            if not department.assigned_to:
+                department.assigned_to = request.user
+            department.save()
+            return redirect('department_notice_view')
+        else:
+            print(form.errors)
+    else:
+        if id == 0:
+            form = DepartmentnoticeForm(user_role=user_role)
+        else:
+            department_notice = Department_notice.objects.get(pk=id)
+            form = DepartmentnoticeForm(user_role=user_role, instance=department_notice)
+
+        return render(request, 'dashboard/department_notice_crud.html', {'form': form})
+
                          
 
 
@@ -167,7 +203,7 @@ def Leave_user_form(request,id=0):
 @dashboard_authentication
 def Leave_user_view(request,id=0):
     if id == 0:
-        if request.user.is_superuser:
+        if request.user.is_hr:
             leaves = LeaveApply.objects.filter(status='Pending')
         else:
             return redirect('home')
@@ -207,45 +243,83 @@ def Leave_approval_rejection(request,id):
         
     
 
-@allowed_users(allowed_roles=['worker'])
-def Today_task_form(request,id=0):
-    if request.method == 'POST':
-        if id==0:
-            form = TodayTaskForm(request.POST)
-        else:
-            comments = TodayTasks.objects.get(pk=id)
-            form = TodayTaskForm(request.POST,instance=comments)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.user = request.user
-            comment.save()
-            return redirect('today_task_view',id=request.user.id)
-        else:
-            return HttpResponse('hell')
-    else:
-        if id == 0:
-            form =TodayTaskForm()
-        else:
-            comments = TodayTasks.objects.get(pk=id)
-            form = TodayTaskForm(instance=comments)
-        return render(request,'dashboard/today_task_form.html',{'form':form})
-    
+
+
+
 @allowed_users(allowed_roles=['worker','manager'])
+def Today_task_view(request,id=0):
+    if id == 0:
+       today_task = TodayTasks.objects.all().order_by('-created_at')
+    else:
+        user = User.objects.get(pk=id)
+        
+        today_task = TodayTasks.objects.filter(user=user) 
+        # for task in today_task:
+        #     print(task.department_notice_board)
+            
+    return render(request,'dashboard/today_task_view.html',{'today_task':today_task})
+    
+   
+    
+@allowed_users(allowed_roles=['worker'])
 @dashboard_authentication
-def Today_task_view(request, id=0):
-        if id == 0:
-            today_tasks = TodayTasks.objects.all()
+def Today_task_personal(request, id=0):
+    user = request.user
+    department_tasks = Department_notice.objects.filter(assigned_to=user)
+    today_tasks = TodayTasks.objects.all()
+
+    # A list to store department_tasks that don't have a matching department_notice_board in today_tasks
+    unmatched_tasks = []
+
+    for task in department_tasks:
+        if not today_tasks.filter(department_notice_board=task).exists():
+            unmatched_tasks.append(task)
+
+    form = TodayTaskForm(user=request.user)
+
+    if request.method == 'POST':
+        form = TodayTaskForm(request.POST)
+        if form.is_valid():
+            department_task = form.cleaned_data['department_notice_board']
+            comment = form.save(commit=False)
+            comment.user = request.user 
+            if comment.department_notice_board is None:
+                messages.error('department_notice_board', 'Task should be selected')
+                return redirect('today_task_personal_form',id=request.user.id)
+            if not today_tasks.filter(department_notice_board=department_task).exists():
+                comment.save()
+                return redirect('today_task_single_view', id=user.id)
+            else:
+                return redirect('home')
         else:
-            user = User.objects.get(pk=id)   
-            today_tasks = TodayTasks.objects.filter(user=user) 
-        return render(request, 'dashboard/today_task_view.html', {'today_tasks': today_tasks})
+            print(form.errors) 
 
+    return render(request, 'dashboard/today_task_form.html', {'department_task': unmatched_tasks, 'form': form})
 
+def Today_task_edit(request,id=0):
+    today_task = TodayTasks.objects.get(pk=id)
+    form = TodayTaskForm(instance=today_task)
+
+    if request.method == 'POST':
+        form = TodayTaskForm(request.POST,instance=today_task)
+        
+        print('notsave')
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.save()
+            # print(task.department_notice_board)
+            
+            print('save')
+            return redirect('today_task_single_view',id=request.user.id)
+        else:
+            print(form.errors)
+    return render(request,'dashboard/today_task_form.html',{'form':form})
+    
 def Today_task_delete(request,id=0):
     if request.method == 'POST':
         tasks = TodayTasks.objects.get(pk=id)
         tasks.delete()  
-        return redirect('home')  
+        return redirect('today_task_single_view',id=request.user.id)  
     return render(request,'dashboard/Delete.html')
             
 
@@ -344,7 +418,7 @@ def user_profile_form(request, id=0):
 @dashboard_authentication
 def user_profile_view(request,id=0):
     if id==0:
-        if request.user.is_superuser:
+        if request.user.is_hr:
             user_profiles = UserProfile.objects.all()
             return render (request,'dashboard/user_profile_view.html',{'user_profiles':user_profiles})
         else:

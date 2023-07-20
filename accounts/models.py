@@ -5,7 +5,6 @@ import secrets
 from datetime import datetime
 from django.utils  import timezone 
 from django.contrib.auth.models import Group
-
 # Create your models here.
 
 class User(AbstractUser):
@@ -29,7 +28,11 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_manager = models.BooleanField(default=False)
     is_worker = models.BooleanField(default=False)
-
+    is_hr = models.BooleanField(default=False)
+    is_frontend = models.BooleanField(default=False)
+    is_backend = models.BooleanField(default=False)
+    is_testing = models.BooleanField(default=False)
+    
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email','department','mobile']
     
@@ -37,12 +40,19 @@ class User(AbstractUser):
     
     
     def save(self, *args, **kwargs):
-        if self.is_superuser:
+        if self.is_superuser and self.department in [self.Department.FRONTEND, self.Department.BACKEND,self.Department.TESTING]:
+            self.is_hr = True
             self.role = self.base_role
+            self.is_superuser = True
+            if self.department == self.Department.FRONTEND:
+                self.is_frontend = True
+            elif self.department == self.Department.BACKEND:
+                self.is_backend = True
+            elif self.department == self.Department.TESTING:
+                self.is_testing = True
             super().save(*args, **kwargs)  # Save the user before adding to the group
             hr_group = Group.objects.get(name='HumanResource')
-            self.groups.add(hr_group)
-            print(';hhhhh')
+            self.groups.add(hr_group)     
         else:
             
             super().save(*args, **kwargs)  

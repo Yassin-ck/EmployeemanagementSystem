@@ -11,7 +11,7 @@
 </div>
 
 <div>
-    {% if 'leave_form_edit' not in request.path and request.user.is_superuser %}
+    {% if 'leave_form_edit' not in request.path and request.user.is_hr %}
   
     <a href="{% url 'leave_personal_view' id=user.id %}" class="btn btn-warning">Leaves</a>
 {% endif %}

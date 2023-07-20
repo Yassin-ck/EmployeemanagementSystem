@@ -14,12 +14,15 @@ text-decoration: none;
 
           <div class="card mb-4">
             <div class="card-body">
-            <h3 class="card-title">{{ department_notice.title }}</h3>
-            <h5 class="card-title">{{ department_notice.subject }}</h5>
-            <p class="card-text">{{ department_notice.content }}</p>
-            {% if department_notice.image %}
-            <img src="{{ MEDIA_URL }}{{ department_notice.image.url }}" alt="Image" class="img-fluid">
-            {% endif %}
+              {% if department_notice.image %}
+              <img src="{{ MEDIA_URL }}{{ department_notice.image.url }}" alt="Image" class="img-fluid">
+              {% endif %}
+              <h3 class="card-title">Task No. :{{ department_notice.id }}</h3>
+            <h3 class="card-title">Title :{{ department_notice.title }}</h3>
+            <h5 class="card-title">Subject :{{ department_notice.subject }}</h5>
+            <p class="card-text">Content :{{ department_notice.content }}</p>
+          
+            
             <div class="mt-3">
               {% if request.user.is_authenticated and request.user.is_manager %}     
               <a href="{% url 'department_notice_edit' department_notice.id %}" class="btn ">Edit</a>

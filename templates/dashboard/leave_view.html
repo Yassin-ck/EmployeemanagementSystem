@@ -27,7 +27,7 @@
         
         {% endif %}
       </div>
-      {% if request.user.is_superuser and 'leave_view' in request.path %}
+      {% if request.user.is_hr and 'leave_view' in request.path %}
         <a href="{% url 'leave_approval' leave.id %}" class="btn btn-secondary">Approve</a>
         <a href="{% url 'leave_rejection' leave.id %}" class="btn btn-dark">Reject</a>
       {% elif leave.status == 'Pending' %}
@@ -39,9 +39,9 @@
 </div>
 {% endfor %}
 
-{% if request.user.is_authenticated and request.user.is_superuser and 'leave_personal_view' not in request.path %}
+{% if request.user.is_authenticated and request.user.is_hr and 'leave_personal_view' not in request.path %}
 <a href="{% url 'leave_form' %}" class="btn btn-warning">Leave Apply</a>
-{% elif not request.user.is_superuser and request.user.is_authenticated %}
+{% elif not request.user.is_hr and request.user.is_authenticated %}
 <a href="{% url 'leave_form' %}" class="btn btn-warning">Leave Apply</a>
 {% endif %}
 {% include "includes/messages.html" %}

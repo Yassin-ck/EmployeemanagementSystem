@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container" style="width:740px; padding:20px;">
+    <div class="card text">
+        <center>
+            <div class="card-header"><img id="profile-img" class="profile-img-card"
+                <h3><strong>Employee Registration</strong></h3></div>
+        </center>
+        <div class="card-body">
+            <h5 align="left">New User Registration Form</h5>
+            <h5 align="left">Department : {{request.user.department}}</h5>
+            <hr color="Blue">
+
+            <!-- validate email -->
+            <form method="post" action="" class="form-signin" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="input-group col-md-6 mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">Department</div>
+                        </div>
+                        {{ form.department }}
+
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Register</button>
+            </div>
+        </form>
+    </div> <!-- /close Card body -->
+
+    <div class="card-footer text-muted">
+        <table width="100%">
+            <tr>
+                <td align="left" width="20%">
+                </td>
+                <td align="right" width="30%">
+                </td>
+            </tr>
+        </table>
+        {% include "includes/messages.html" %}
+    </div>
+</div>
+</div>
+
+{% endblock content %}

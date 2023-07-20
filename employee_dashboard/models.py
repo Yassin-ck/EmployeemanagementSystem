@@ -7,6 +7,7 @@ from django.core.files.storage import default_storage
 from django.utils.timezone import now
 # Create your models here.
 class Notice_board(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     title = models.CharField(max_length=150)
     subject = models.CharField(max_length=200)
     content = models.TextField()
@@ -44,14 +45,13 @@ class Department_notice(models.Model):
     image = models.ImageField(upload_to='department/',blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    assigned_to = models.ForeignKey(User,on_delete=models.CASCADE)
-    
+    assigned_to = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     class Meta:
         ordering = ['-updated_at','-created_at']
         
         
     def __str__(self):
-        return self.title
+        return str(self.id)
     
     def save(self,*args,**kwargs):
         super().save(*args,**kwargs)
@@ -98,23 +98,26 @@ class LeaveApply(models.Model):
 
 
 class TodayTasks(models.Model):
+    STATUS_CHOICES = [
+        ('Completed', 'Completed'),
+        ('Pending', 'Pending'),
+       
+    ]
     department_notice_board = models.ForeignKey(Department_notice, on_delete=models.CASCADE, null=True,related_name='department_comment')
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     comment = models.TextField(null=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    status = models.CharField(max_length=20,choices=STATUS_CHOICES,blank=True,default="Pending")
     class Meta:
         ordering = ['-updated_at','-created_at']
     
     
     
     def __str__(self):
-        if self.department_notice_board:
-            return f'{self.user} commented on DepartmentBoard : {self.comment}'
-        else:
-            return f'{self.user} commented on NoticeBoard : {self.comment}'
-
+            return  self.status
+       
+    
 
 
 class Paycheque(models.Model):
@@ -167,7 +170,7 @@ class UserProfile(models.Model):
     state = models.CharField(max_length=20, unique=False)
     country = models.CharField(max_length=20, unique=False)
     alternative_contact_number = models.CharField(max_length=10)
-    profile_picture = models.ImageField(upload_to="userprofile/")
+    profile_picture = models.ImageField(upload_to="userprofile/",default='userprofile/default.profilepicture.jpg')
     experience = models.CharField(max_length=255)
     
     
